@@ -64,6 +64,6 @@ function migate(mysqli $db)
     $db->query($create_notifications_statement);
 
     // Seed the fresh db with default data if you want
-    include_once("seeder.php");
+    require_once "seeder.php";
     seed($db);
 }
