@@ -55,6 +55,14 @@ function migate(mysqli $db)
     )";
     $db->query($create_bids_statement);
 
+    $create_followed_statement = "
+    CREATE TABLE FollowedItems
+    (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(40) NOT NULL
+    )";
+    $db->query($create_followed_statement);
+
     $create_notifications_statement = "
     CREATE TABLE Notifications
     (
