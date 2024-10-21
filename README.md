@@ -4,4 +4,4 @@ Database Fundamentals Module Project - Auctions website.
 
 Most of the code from "Views" provided by the course instructor.
 
-Happy auctioning.
+Happy auctioning all.
