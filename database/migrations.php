@@ -35,7 +35,14 @@ function migate(mysqli $db)
     CREATE TABLE Items
     (
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(40) NOT NULL
+    itemName VARCHAR(40) NOT NULL,
+    description VARCHAR(100) NOT NULL,
+    categoryId INT NOT NULL,
+    startPrice DECIMAL(7,2) NOT NULL,
+    reservePrice DECIMAL(7,2) CHECK (reservePrice > startPrice),
+    endDate TIMESTAMP(0) NOT NULL CHECK (endDate > startDate),
+    startDate TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    FOREIGN KEY (categoryId) REFERENCES Categories(id)
     )";
     $db->query($create_items_statement);
 
