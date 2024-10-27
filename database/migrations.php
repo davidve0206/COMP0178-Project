@@ -25,16 +25,16 @@ function migrate(mysqli $db)
     // Create the tables we need
     $create_users_statement = "
     CREATE TABLE Users
-    (User_ID INTEGER AUTO_INCREMENT PRIMARY KEY,
-    Username VARCHAR(30) NOT NULL,
-    PASSWORD VARCHAR(30) NOT NULL,
-    Email VARCHAR(30) NOT NULL,
-    FirstName VARCHAR(20) NOT NULL,
-    LastName VARCHAR(30) NOT NULL,
-    Address VARCHAR(100) NOT NULL,
-    User_Join_Time TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
-    IsBuyer BOOLEAN NOT NULL DEFAULT True, 
-    IsSeller BOOLEAN NOT NULL DEFAULT False 
+    (id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(30) NOT NULL,
+    password VARCHAR(30) NOT NULL,
+    email VARCHAR(30) NOT NULL,
+    firstName VARCHAR(20) NOT NULL,
+    lastName VARCHAR(30) NOT NULL,
+    address VARCHAR(100) NOT NULL,
+    userJoinTime TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    isBuyer BOOLEAN NOT NULL DEFAULT True, 
+    isSeller BOOLEAN NOT NULL DEFAULT False 
     )";
     $db->query($create_users_statement);
 
