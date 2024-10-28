@@ -25,7 +25,8 @@ function migrate(mysqli $db)
     // Create the tables we need
     $create_users_statement = "
     CREATE TABLE Users
-    (id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(30) NOT NULL,
     password VARCHAR(30) NOT NULL,
     email VARCHAR(30) NOT NULL,
