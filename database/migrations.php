@@ -37,7 +37,7 @@ function migate(mysqli $db)
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
     itemName VARCHAR(50) NOT NULL,
     description VARCHAR(255) NOT NULL,
-    sellerID INT NOT NULL,
+    sellerId INT NOT NULL,
     categoryId INT NOT NULL,
     startPrice DECIMAL(7,2) NOT NULL,
     reservePrice DECIMAL(7,2) CHECK (reservePrice > startPrice),
