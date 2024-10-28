@@ -5,7 +5,7 @@
  * @param mysqli $db
  * @return void
  */
-function migate(mysqli $db)
+function migrate(mysqli $db)
 {
     $db_name = "auction_site";
 
@@ -25,9 +25,16 @@ function migate(mysqli $db)
     // Create the tables we need
     $create_users_statement = "
     CREATE TABLE Users
-    (
-    id INTEGER AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(40) NOT NULL
+    (id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(30) NOT NULL,
+    password VARCHAR(30) NOT NULL,
+    email VARCHAR(30) NOT NULL,
+    firstName VARCHAR(20) NOT NULL,
+    lastName VARCHAR(30) NOT NULL,
+    address VARCHAR(100) NOT NULL,
+    userJoinTime TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    isBuyer BOOLEAN NOT NULL DEFAULT True, 
+    isSeller BOOLEAN NOT NULL DEFAULT False 
     )";
     $db->query($create_users_statement);
 
