@@ -9,11 +9,11 @@
       <label for="accountType" class="col-sm-2 col-form-label text-right">Registering as a:</label>
       <div class="col-sm-10">
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="accountType" id="accountBuyer" value="buyer" checked>
+          <input class="form-check-input" type="radio" name="accountType" id="accountBuyer" value="buyer" onclick="toggleRadioRequired()">
           <label class="form-check-label" for="accountBuyer">Buyer</label>
         </div>
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="accountType" id="accountSeller" value="seller">
+          <input class="form-check-input" type="radio" name="accountType" id="accountSeller" value="seller" onclick="toggleRadioRequired()">
           <label class="form-check-label" for="accountSeller">Seller</label>
         </div>
         <small id="accountTypeHelp" class="form-text-inline text-muted"><span class="text-danger">* Required.</span></small>
@@ -22,21 +22,21 @@
     <div class="form-group row">
       <label for="userEmail" class="col-sm-2 col-form-label text-right">Email</label>
       <div class="col-sm-10">
-        <input type="text" class="form-control" id="userEmail" placeholder="Email">
+        <input type="text" class="form-control" id="userEmail" placeholder="Email" oninput="toggleRequired('emailHelp', this)">
         <small id="emailHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
       </div>
     </div>
     <div class="form-group row">
       <label for="initialPassword" class="col-sm-2 col-form-label text-right">Password</label>
       <div class="col-sm-10">
-        <input type="password" class="form-control" id="initialPassword" placeholder="Password">
+        <input type="password" class="form-control" id="initialPassword" placeholder="Password" oninput="toggleRequired('passwordHelp', this)">
         <small id="passwordHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
       </div>
     </div>
     <div class="form-group row">
       <label for="repeatPassword" class="col-sm-2 col-form-label text-right">Repeat password</label>
       <div class="col-sm-10">
-        <input type="password" class="form-control" id="repeatPassword" placeholder="Enter password again">
+        <input type="password" class="form-control" id="repeatPassword" placeholder="Enter password again" oninput="toggleRequired('repeatPasswordHelp', this)">
         <small id="repeatPasswordHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
       </div>
     </div>
@@ -74,5 +74,21 @@
 
       // Continue form submission if all checks pass
       return true;
+    }
+
+    // Required text visibility toggle for text inputs
+    function toggleRequired(helpId, inputField) {
+      const helpText = document.getElementById(helpId);
+      if (inputField.value) {
+        helpText.style.display = "none";
+      } else {
+        helpText.style.display = "inline";
+      }
+    }
+
+    // Required text visibility toggle for radio buttons
+    function toggleRadioRequired() {
+      const accountTypeHelp = document.getElementById("accountTypeHelp");
+      accountTypeHelp.style.display = "none";
     }
   </script>
