@@ -25,7 +25,8 @@ function migrate(mysqli $db)
     // Create the tables we need
     $create_users_statement = "
     CREATE TABLE Users
-    (id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(30) NOT NULL,
     password VARCHAR(30) NOT NULL,
     email VARCHAR(30) NOT NULL,
@@ -37,6 +38,15 @@ function migrate(mysqli $db)
     isSeller BOOLEAN NOT NULL DEFAULT False 
     )";
     $db->query($create_users_statement);
+
+    $create_categories_statement = "
+    CREATE TABLE Categories
+    (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(255)
+    )";
+    $db->query($create_categories_statement);
 
     $create_items_statement = "
     CREATE TABLE Items
@@ -54,28 +64,28 @@ function migrate(mysqli $db)
     FOREIGN KEY (categoryId) REFERENCES Categories(id)
     )";
     $db->query($create_items_statement);
-
-    $create_categories_statement = "
-    CREATE TABLE Categories
-    (
-    id INTEGER AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(40) NOT NULL
-    )";
-    $db->query($create_categories_statement);
-
+ 
     $create_bids_statement = "
     CREATE TABLE Bids
     (
-    id INTEGER AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(40) NOT NULL
+    bidderId INT NOT NULL,
+    itemId INT NOT NULL,
+    bidPrice DECIMAL(7,2) NOT NULL,
+    bidDate TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    isWinner BOOL DEFAULT 0,
+    FOREIGN KEY (bidderId) REFERENCES Users(id) ON DELETE CASCADE,
+    FOREIGN KEY (itemId) REFERENCES Items(id) ON DELETE CASCADE,
+    CONSTRAINT PK_Bids PRIMARY KEY (bidderId, itemId, bidPrice)
     )";
     $db->query($create_bids_statement);
-
+    
     $create_followed_statement = "
     CREATE TABLE FollowedItems
     (
-    id INTEGER AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(40) NOT NULL
+    userId INT NOT NULL,
+    itemId INT NOT NULL,
+    FOREIGN KEY (userId) REFERENCES Users(id) ON DELETE CASCADE,
+    FOREIGN KEY (itemId) REFERENCES Items(id) ON DELETE CASCADE
     )";
     $db->query($create_followed_statement);
 
