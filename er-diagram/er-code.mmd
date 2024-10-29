@@ -1,0 +1,60 @@
+erDiagram
+    USERS {
+        int userId PK
+        string username
+        string password
+        string email
+        string firstName
+        string lastName
+        string address
+    }
+
+    BUYER {
+        int buyerId
+        bool isBuyer
+    }
+
+    SELLER {
+        int sellerId
+        bool isSeller
+    }
+
+    ITEMS {
+        int itemId PK
+        string itemName
+        string itemDescription
+    }
+
+    CATEGORIES {
+        int categoryId
+        string name
+        string description
+    }
+
+    BIDS {
+        float bidPrice
+        date bidDate
+        bool isWinner
+    }
+
+    AUCTIONS {
+        float reservePrice
+        float startPrice
+        date startDate
+        date endDate
+        string auctionResult
+    }
+
+    NOTIFICATIONS {
+        int notificationId
+        string subject
+        string message
+        date notificationDate
+    }
+
+    USERS ||--o{ BUYER : ""
+    USERS ||--o{ SELLER : ""
+    BUYER }o--o{ ITEMS : "Bids for"
+    BUYER }o--o{ ITEMS : "Watches"
+    ITEMS }o--|| CATEGORIES : "Belongs to"
+    SELLER ||--o{ ITEMS : "Creates Auction"
