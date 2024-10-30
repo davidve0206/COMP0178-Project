@@ -7,6 +7,11 @@
  */
 function migrate(mysqli $db)
 {
+    $db = new mysqli(
+        "localhost",
+        "root",
+    );
+
     $db_name = "auction_site";
 
     // First, delete the existing database
@@ -58,8 +63,8 @@ function migrate(mysqli $db)
     categoryId INT NOT NULL,
     startPrice DECIMAL(7,2) NOT NULL,
     reservePrice DECIMAL(7,2) CHECK (reservePrice > startPrice),
-    endDate TIMESTAMP(0) NOT NULL CHECK (endDate > startDate),
     startDate TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    endDate TIMESTAMP(0) NOT NULL CHECK (endDate > startDate),
     FOREIGN KEY (sellerId) REFERENCES Users(id),
     FOREIGN KEY (categoryId) REFERENCES Categories(id)
     )";
@@ -100,4 +105,6 @@ function migrate(mysqli $db)
     // Seed the fresh db with default data if you want
     require_once "seeder.php";
     seed($db);
+
+    $db->close();
 }
