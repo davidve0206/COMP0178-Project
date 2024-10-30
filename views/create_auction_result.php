@@ -6,20 +6,33 @@
 
 // This function takes the form data and adds the new auction to the database.
 
-/* TODO #1: Connect to MySQL database (perhaps by requiring a file that
-            already does this). */
-
+// Connect to MySQL database 
+require_once "/xampp/htdocs/COMP0178-Project/database/setup.php"; # Q: Does this match everyone's setup?
 
 /* TODO #2: Extract form data into variables. Because the form was a 'post'
             form, its data can be accessed via $POST['auctionTitle'], 
             $POST['auctionDetails'], etc. Perform checking on the data to
             make sure it can be inserted into the database. If there is an
             issue, give some semi-helpful feedback to user. */
-
+$title = $_POST['auctionTitle'];
+$details = $_POST['auctionDetails'];
+$category = $_POST['auctionCategory'];
+$startPrice = $_POST['auctionStartPrice'];
+$reservePrice = $_POST['auctionReservePrice'];
+$endDate = $_POST['auctionEndDate'];
+$sellerId = 1; # Hard-coded for now until login is working
+# To-Do: Add start date on frontend + add logic to change the insert query if it is specified
 
 /* TODO #3: If everything looks good, make the appropriate call to insert
             data into the database. */
-            
+$db->query("USE auction_site");
+
+$insert_query = "INSERT INTO Items (itemName, description, sellerId, categoryId, startPrice, reservePrice, endDate)
+VALUES ($title, $details, $sellerId, $category, $startPrice, $reservePrice, $endDate)";
+
+$result = $db -> query($insert_query)
+    or die('Error making Create Auction query' . $mysqli -> error);
+$db -> close();
 
 // If all is successful, let user know.
 echo('<div class="text-center">Auction successfully created! <a href="FIXME">View your new listing.</a></div>');
