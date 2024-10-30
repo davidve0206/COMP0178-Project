@@ -5,7 +5,7 @@
  * @param mysqli $db
  * @return void
  */
-function migrate(mysqli $db)
+function migrate()
 {
     $db = new mysqli(
         "localhost",
@@ -34,7 +34,7 @@ function migrate(mysqli $db)
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(30) NOT NULL,
     password VARCHAR(30) NOT NULL,
-    email VARCHAR(30) NOT NULL,
+    email VARCHAR(50) NOT NULL,
     firstName VARCHAR(20) NOT NULL,
     lastName VARCHAR(30) NOT NULL,
     address VARCHAR(100) NOT NULL,
