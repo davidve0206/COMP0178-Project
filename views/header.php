@@ -4,8 +4,6 @@
   // ONLY after the user's login credentials have been verified via a 
   // database query.
   session_start();
-  $_SESSION['logged_in'] = false;
-  $_SESSION['account_type'] = 'seller';
 ?>
 
 
@@ -37,7 +35,7 @@
 <?php
   // Displays either login or logout on the right, depending on user's
   // current status (session).
-  if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
+  if (isset($_SESSION['loggedIn']) && $_SESSION['loggedIn'] == true) {
     echo '<a class="nav-link" href="logout.php">Logout</a>';
   }
   else {
@@ -54,7 +52,7 @@
       <a class="nav-link" href="browse.php">Browse</a>
     </li>
 <?php
-  if (isset($_SESSION['account_type']) && $_SESSION['account_type'] == 'buyer') {
+  if (isset($_SESSION['isBuyer']) && $_SESSION['isBuyer']) {
   echo('
 	<li class="nav-item mx-1">
       <a class="nav-link" href="mybids.php">My Bids</a>
@@ -63,7 +61,7 @@
       <a class="nav-link" href="recommendations.php">Recommended</a>
     </li>');
   }
-  if (isset($_SESSION['account_type']) && $_SESSION['account_type'] == 'seller') {
+  if (isset($_SESSION['isSeller']) && $_SESSION['isSeller']) {
   echo('
 	<li class="nav-item mx-1">
       <a class="nav-link" href="mylistings.php">My Listings</a>
@@ -90,12 +88,12 @@
       <div class="modal-body">
         <form method="POST" action="login_result.php">
           <div class="form-group">
-            <label for="email">Email</label>
-            <input type="text" class="form-control" id="email" placeholder="Email">
+            <label for="username">Username</label>
+            <input type="text" class="form-control" id="username" placeholder="Username" name="username">
           </div>
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" class="form-control" id="password" placeholder="Password">
+            <input type="password" class="form-control" id="password" placeholder="Password" name="password">
           </div>
           <button type="submit" class="btn btn-primary form-control">Sign in</button>
         </form>

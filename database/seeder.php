@@ -14,9 +14,9 @@ function seed(mysqli $db) {
     $user_creation_statement = "
     INSERT INTO Users (id, username, password, email, firstName, lastName, address, isBuyer, isSeller)
     VALUES
-        (1, 'buyer1', 'password', 'david.velasquez.24+1@ucl.ac.uk', 'BuyerAdam', 'BuyerSmith', '123 UCL, London', True, False),
-        (2, 'seller1', 'password', 'david.velasquez.24+2@ucl.ac.uk', 'SellerJhon', 'SellerKeynes', '456 UCL, London', False, True),
-        (3, 'mixed1', 'password', 'david.velasquez.24+3@ucl.ac.uk', 'MixedDavid', 'MixedRicardo', '789 UCL, London', True, True)
+        (1, 'buyer1', 'password', 'uclauctionsite2024g27+1@gmail.com', 'BuyerAdam', 'BuyerSmith', '123 UCL, London', True, False),
+        (2, 'seller1', 'password', 'uclauctionsite2024g27+2@gmail.com', 'SellerJhon', 'SellerKeynes', '456 UCL, London', False, True),
+        (3, 'mixed1', 'password', 'uclauctionsite2024g27+3@gmail.com', 'MixedDavid', 'MixedRicardo', '789 UCL, London', True, True)
     ";
     $db->query($user_creation_statement);
 

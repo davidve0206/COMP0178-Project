@@ -7,6 +7,8 @@
 $db = new mysqli(
     "localhost",
     "root",
+    null,
+    "auction_site"
 );
 
 if ($db->connect_error) {
