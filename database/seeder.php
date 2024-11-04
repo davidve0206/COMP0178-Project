@@ -26,7 +26,7 @@ function seed(mysqli $db) {
         (1, 'Arcade', 'Arcade videogames and machines, slot operated or modded'),
         (2, 'Nintendo', 'Nintendo consoles and any games for them, independent of generation'),
         (3, 'PC', 'Gaming PCs, be it laptops or desktop, and asociated games'),
-        (4, 'PlayStatation', 'PlayStation games and consoles'),
+        (4, 'PlayStation', 'PlayStation games and consoles'),
         (5, 'Sega', 'Sega vintage games and consoles'),
         (6, 'XBox', 'XBox games and consoles')
     ";

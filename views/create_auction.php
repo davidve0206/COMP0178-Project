@@ -1,13 +1,11 @@
 <?php include_once("header.php") ?>
 
 <?php
-/* (Uncomment this block to redirect people without selling privileges away from this page)
-  // If user is not logged in or not a seller, they should not be able to
-  // use this page.
-  if (!isset($_SESSION['account_type']) || $_SESSION['account_type'] != 'seller') {
-    header('Location: browse.php');
-  }
-*/
+// If user is not logged in or not a seller, they should not be able to
+// use this page.
+if (!$_SESSION['loggedIn'] || !$_SESSION['isSeller']) {
+  header('Location: browse.php');
+}
 ?>
 
 <div class="container">
@@ -26,9 +24,9 @@
       complete. -->
         <form method="post" action="create_auction_result.php">
           <div class="form-group row">
-            <label for="auctionTitle" class="col-sm-2 col-form-label text-right">Title of auction</label>
+            <label for="auctionTitle" class="col-sm-2 col-form-label text-right">Item Name</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="auctionTitle" name="auctionTitle" placeholder="e.g. Black mountain bike" required>
+              <input type="text" class="form-control" id="auctionTitle" name="auctionTitle" placeholder="e.g. GoldenEye 007" required>
               <small id="titleHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> A short description of the item you're selling, which will display in listings.</small>
             </div>
           </div>
@@ -43,10 +41,22 @@
             <label for="auctionCategory" class="col-sm-2 col-form-label text-right">Category</label>
             <div class="col-sm-10">
               <select class="form-control" id="auctionCategory" name="auctionCategory" required>
-                <option selected>Choose...</option>
-                <option value="fill">Fill me in</option>
-                <option value="with">with options</option>
-                <option value="populated">populated from a database?</option>
+                <?php
+                require_once "/xampp/htdocs/COMP0178-Project/database/setup.php";
+
+                $db->query("USE auction_site");
+                $query = "SELECT id, name FROM Categories";
+                $result = mysqli_query($db, $query)
+                  or die('Error fetching categories' . $db->error);
+
+                echo '<option selected disabled>-</option>';
+                while ($row = mysqli_fetch_array($result)) {
+                  $id = $row['id'];
+                  $name = $row['name'];
+                  echo "<option value='$id'>$name</option>";
+                }
+                $db->close();
+                ?>
               </select>
               <small id="categoryHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Select a category for this item.</small>
             </div>
@@ -75,6 +85,15 @@
               <small id="reservePriceHelp" class="form-text text-muted">Optional. Auctions that end below this price will not go through. This value is not displayed in the auction listing.</small>
             </div>
           </div>
+
+          <div class="form-group row">
+            <label for="auctionStartDate" class="col-sm-2 col-form-label text-right">Start date</label>
+            <div class="col-sm-10">
+              <input type="datetime-local" class="form-control" id="auctionStartDate" name="auctionStartDate">
+              <small id="startDateHelp" class="form-text text-muted">Optional. Select when you want the auction to start - if left blank it will start immediately.</small>
+            </div>
+          </div>
+
           <div class="form-group row">
             <label for="auctionEndDate" class="col-sm-2 col-form-label text-right">End date</label>
             <div class="col-sm-10">

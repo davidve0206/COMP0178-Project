@@ -29,8 +29,11 @@
     }
 
     // Category
-    // $category_id = $_POST['auctionCategory']; -- Need to implement correct Categories on the frontend
-    $category_id = 1; # Hard-coded for now
+    if (!isset($_POST['auctionCategory'])) {
+        $error_message = 'You must select a category.';
+    } else {
+        $category_id = intval($_POST['auctionCategory']);
+    }
 
     // Start Price
     if (isset($_POST['auctionStartPrice']) && $_POST['auctionStartPrice'] !== '') {
@@ -42,6 +45,9 @@
     // Reserve Price
     $reserve_price = isset($_POST['auctionReservePrice']) && $_POST['auctionReservePrice'] !== '' ? floatval($_POST['auctionReservePrice']) : null;
 
+    // Start Date
+    $start_date = isset($_POST['auctionStartDate']) && $_POST['auctionStartDate'] !== '' ? $db->real_escape_string($_POST['auctionStartDate']) : null;
+
     // End Date
     if (isset($_POST['auctionEndDate'])) {
         $end_date = $db->real_escape_string($_POST['auctionEndDate']);
@@ -50,12 +56,16 @@
     }
 
     // Seller
-    $seller_id = 1; # Hard-coded for now
-    # To-Do: Add start date on frontend
+    if (!isset($_SESSION['userId'])) {
+        $error_message = 'You must be logged in to create an auction.';
+    } else {
+        $seller_id = intval($_SESSION['userId']);
+    }
+
 
     /* Function to perform extra checking on the data to make sure it can be inserted into the database. */
 
-    function data_checking($title, $description, $category_id, $start_price, $reserve_price, $end_date, $seller_id)
+    function data_checking($title, $description, $category_id, $start_price, $reserve_price, $start_date, $end_date, $seller_id)
     {
 
         if (strlen($title) > 52) {
@@ -86,10 +96,18 @@
             return 'The auction must end later than the current time.';
         }
 
+        if (!is_null($start_date) && new DateTime($start_date) < new DateTime()) {
+            return 'The start date for the auction cannot be in the past.';
+        }
+
+        if (!is_null($start_date) && new DateTime($end_date) < new DateTime($start_date)) {
+            return 'The auction cannot end before it has started.';
+        }
+
         return false;
     }
 
-// Check for error message, and invalid data
+// Check for error message or invalid data
 
     if ($error_message) {
         echo <<<EOM
@@ -98,7 +116,7 @@
 EOM;
     } else {
 
-        $invalid_data = data_checking($title, $description, $category_id, $start_price, $reserve_price, $end_date, $seller_id);
+        $invalid_data = data_checking($title, $description, $category_id, $start_price, $reserve_price, $start_date, $end_date, $seller_id);
 
         if ($invalid_data) {
             echo <<<EOM
@@ -110,10 +128,10 @@ EOM;
             $db->query("USE auction_site");
 
             // Prepare the base query 
-            $query = "INSERT INTO Items (itemName, description, sellerId, categoryId, startPrice, reservePrice, endDate)";
-            $values = "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $query = "INSERT INTO Items (itemName, description, sellerId, categoryId, startPrice, reservePrice, startDate, endDate)";
+            $values = "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $db->prepare("$query $values");
-            $stmt->bind_param("ssiidds", $title, $description, $seller_id, $category_id, $start_price, $reserve_price, $end_date);
+            $stmt->bind_param("ssiiddss", $title, $description, $seller_id, $category_id, $start_price, $reserve_price, $start_date, $end_date);
 
             // // Copilot code to log the query that is passed to the statement
             // function bind_query($query, $params)
