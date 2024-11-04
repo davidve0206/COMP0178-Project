@@ -7,42 +7,135 @@
     // This function takes the form data and adds the new auction to the database.
 
     // Connect to MySQL database 
-    require_once "/xampp/htdocs/COMP0178-Project/database/setup.php"; # Q: Does this match everyone's setup?
+    require_once "/xampp/htdocs/COMP0178-Project/database/setup.php";
 
-    /* TODO #2: Extract form data into variables. Because the form was a 'post'
-            form, its data can be accessed via $POST['auctionTitle'], 
-            $POST['auctionDetails'], etc. Perform checking on the data to
-            make sure it can be inserted into the database. If there is an
-            issue, give some semi-helpful feedback to user. */
-    $title = $_POST['auctionTitle'];
-    $details = $_POST['auctionDetails'];
-    // $categoryId = $_POST['auctionCategory'];
-    $categoryId = 1;
-    $startPrice = $_POST['auctionStartPrice'];
-    $reservePrice = $_POST['auctionReservePrice'];
-    $endDate = $_POST['auctionEndDate'];
-    $sellerId = 1; # Hard-coded for now until login is working
-    # To-Do: Add start date on frontend + add logic to change the insert query if it is specified
+    /* Extract form data into variables, checking that they exist if required */
 
-    # Converting the date format into a MySQL timestamp
-    $endDate_dateTime = new DateTime($endDate);
-    $endDateTimestamp = $endDate_dateTime->format('Y-m-d H:i:s');
+    $error_message = null;
 
+    // Title
+    if (!isset($_POST['auctionTitle']) or trim($_POST['auctionTitle']) == '') {
+        $error_message = 'You must add a title.';
+    } else {
+        $title = $db->real_escape_string($_POST['auctionTitle']);
+    }
 
-    /* TODO #3: If everything looks good, make the appropriate call to insert
-            data into the database. */
-    $db->query("USE auction_site");
+    // Description
+    if (!isset($_POST['auctionDescription']) or trim($_POST['auctionDescription']) == '') {
+        echo $_POST['auctionDescription'];
+        $error_message = 'Please add a description.';
+    } else {
+        $description = $db->real_escape_string($_POST['auctionDescription']);
+    }
 
-    $insert_query = "INSERT INTO Items (itemName, description, sellerId, categoryId, startPrice, reservePrice, endDate)
-VALUES ($title, $details, $sellerId, $categoryId, $startPrice, $reservePrice, $endDateTimestamp)";
+    // Category
+    // $category_id = $_POST['auctionCategory']; -- Need to implement correct Categories on the frontend
+    $category_id = 1; # Hard-coded for now
 
-    $result = $db->query($insert_query)
-        or die('Error making Create Auction query' . $mysqli->error);
-    $db->close();
+    // Start Price
+    if (isset($_POST['auctionStartPrice']) && $_POST['auctionStartPrice'] !== '') {
+        $start_price = floatval($_POST['auctionStartPrice']);
+    } else {
+        $error_message = 'You must add a start price.';
+    }
 
-    // If all is successful, let user know.
-    echo ('<div class="text-center">Auction successfully created! <a href="FIXME">View your new listing.</a></div>');
+    // Reserve Price
+    $reserve_price = isset($_POST['auctionReservePrice']) && $_POST['auctionReservePrice'] !== '' ? floatval($_POST['auctionReservePrice']) : null;
 
+    // End Date
+    if (isset($_POST['auctionEndDate'])) {
+        $end_date = $db->real_escape_string($_POST['auctionEndDate']);
+    } else {
+        $error_message = 'You must set an end date.';
+    }
+
+    // Seller
+    $seller_id = 1; # Hard-coded for now
+    # To-Do: Add start date on frontend
+
+    /* Function to perform extra checking on the data to make sure it can be inserted into the database. */
+
+    function data_checking($title, $description, $category_id, $start_price, $reserve_price, $end_date, $seller_id)
+    {
+
+        if (strlen($title) > 52) {
+            return 'Title too long.';
+        }
+
+        if (strlen($description) > 257) {
+            return 'description too long. Please limit it to 255 characters.';
+        }
+
+        if (!is_int($category_id)) {
+            return 'Invalid category.';
+        }
+
+        if (!is_int($seller_id)) {
+            return 'Invalid seller ID.';
+        }
+
+        if ($start_price <= 0) {
+            return 'The starting price must be greater than 0.';
+        }
+
+        if (!is_null($reserve_price) && $reserve_price <= $start_price) {
+            return 'The reserve price must be higher than the starting price.';
+        }
+
+        if (new DateTime($end_date) <= new DateTime()) {
+            return 'The auction must end later than the current time.';
+        }
+
+        return false;
+    }
+
+// Check for error message, and invalid data
+
+    if ($error_message) {
+        echo <<<EOM
+          <p>Error: $error_message</p>
+          <button onclick="history.back()" class="btn btn-primary">Go Back</button>
+EOM;
+    } else {
+
+        $invalid_data = data_checking($title, $description, $category_id, $start_price, $reserve_price, $end_date, $seller_id);
+
+        if ($invalid_data) {
+            echo <<<EOM
+          <p>Data is invalid: $invalid_data</p>
+          <button onclick="history.back()" class="btn btn-primary">Go Back</button>
+EOM;
+        } else {
+            /* If everything looks good, make the appropriate call to insert data into the database. */
+            $db->query("USE auction_site");
+
+            // Prepare the base query 
+            $query = "INSERT INTO Items (itemName, description, sellerId, categoryId, startPrice, reservePrice, endDate)";
+            $values = "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $db->prepare("$query $values");
+            $stmt->bind_param("ssiidds", $title, $description, $seller_id, $category_id, $start_price, $reserve_price, $end_date);
+
+            // // Copilot code to log the query that is passed to the statement
+            // function bind_query($query, $params)
+            // {
+            //     foreach ($params as $param) {
+            //         $query = preg_replace('/\?/', "'$param'", $query, 1);
+            //     }
+            //     return $query;
+            // }
+
+            // $logged_query = bind_query($query, $values);
+            // echo $logged_query;
+
+            if ($stmt->execute()) {
+                echo ('<div class="text-center">Auction successfully created! <a href="FIXME">View your new listing.</a></div>');
+            } else {
+                echo 'Error making Create Auction query' . $stmt->error;
+            }
+            $stmt->close();
+            $db->close();
+        }
+    }
 
     ?>
 

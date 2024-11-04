@@ -53,6 +53,7 @@ function migrate()
     )";
     $db->query($create_categories_statement);
 
+    # I'm not sure why, but this statement is rejected if startDate comes before endDate
     $create_items_statement = "
     CREATE TABLE Items
     (
@@ -63,8 +64,8 @@ function migrate()
     categoryId INT NOT NULL,
     startPrice DECIMAL(7,2) NOT NULL,
     reservePrice DECIMAL(7,2) CHECK (reservePrice > startPrice),
-    startDate TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     endDate TIMESTAMP(0) NOT NULL CHECK (endDate > startDate),
+    startDate TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0), 
     FOREIGN KEY (sellerId) REFERENCES Users(id),
     FOREIGN KEY (categoryId) REFERENCES Categories(id)
     )";
