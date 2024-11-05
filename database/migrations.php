@@ -53,7 +53,7 @@ function migrate()
     )";
     $db->query($create_categories_statement);
 
-    # I'm not sure why, but this statement is rejected if startDate comes before endDate
+    # I have deleted the check, but I'm still getting an error when endDate comes after startDate??
     $create_items_statement = "
     CREATE TABLE Items
     (
@@ -64,7 +64,7 @@ function migrate()
     categoryId INT NOT NULL,
     startPrice DECIMAL(7,2) NOT NULL,
     reservePrice DECIMAL(7,2) CHECK (reservePrice > startPrice),
-    endDate TIMESTAMP(0) NOT NULL CHECK (endDate > startDate),
+    endDate TIMESTAMP(0) NOT NULL,
     startDate TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0), 
     FOREIGN KEY (sellerId) REFERENCES Users(id),
     FOREIGN KEY (categoryId) REFERENCES Categories(id)

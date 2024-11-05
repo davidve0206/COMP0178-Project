@@ -7,7 +7,7 @@
     // This function takes the form data and adds the new auction to the database.
 
     // Connect to MySQL database 
-    require_once "/xampp/htdocs/COMP0178-Project/database/setup.php";
+    require_once "../database/setup.php";
 
     /* Extract form data into variables, checking that they exist if required */
 

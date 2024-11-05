@@ -42,7 +42,7 @@ if (!$_SESSION['loggedIn'] || !$_SESSION['isSeller']) {
             <div class="col-sm-10">
               <select class="form-control" id="auctionCategory" name="auctionCategory" required>
                 <?php
-                require_once "/xampp/htdocs/COMP0178-Project/database/setup.php";
+                require_once "../database/setup.php";
 
                 $db->query("USE auction_site");
                 $query = "SELECT id, name FROM Categories";
