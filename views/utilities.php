@@ -2,23 +2,21 @@
 
 // display_time_remaining:
 // Helper function to help figure out what time to display
-function display_time_remaining($interval) {
+function display_time_remaining($interval)
+{
 
-    if ($interval->days == 0 && $interval->h == 0) {
-      // Less than one hour remaining: print mins + seconds:
-      $time_remaining = $interval->format('%im %Ss');
-    }
-    else if ($interval->days == 0) {
-      // Less than one day remaining: print hrs + mins:
-      $time_remaining = $interval->format('%hh %im');
-    }
-    else {
-      // At least one day remaining: print days + hrs:
-      $time_remaining = $interval->format('%ad %hh');
-    }
+  if ($interval->days == 0 && $interval->h == 0) {
+    // Less than one hour remaining: print mins + seconds:
+    $time_remaining = $interval->format('%im %Ss');
+  } else if ($interval->days == 0) {
+    // Less than one day remaining: print hrs + mins:
+    $time_remaining = $interval->format('%hh %im');
+  } else {
+    // At least one day remaining: print days + hrs:
+    $time_remaining = $interval->format('%ad %hh');
+  }
 
   return $time_remaining;
-
 }
 
 // print_listing_li:
@@ -28,37 +26,89 @@ function print_listing_li($item_id, $title, $desc, $price, $num_bids, $end_time)
   // Truncate long descriptions
   if (strlen($desc) > 250) {
     $desc_shortened = substr($desc, 0, 250) . '...';
-  }
-  else {
+  } else {
     $desc_shortened = $desc;
   }
-  
+
   // Fix language of bid vs. bids
   if ($num_bids == 1) {
     $bid = ' bid';
-  }
-  else {
+  } else {
     $bid = ' bids';
   }
-  
+
   // Calculate time to auction end
   $now = new DateTime();
   if ($now > $end_time) {
     $time_remaining = 'This auction has ended';
-  }
-  else {
+  } else {
     // Get interval:
     $time_to_end = date_diff($now, $end_time);
     $time_remaining = display_time_remaining($time_to_end) . ' remaining';
   }
-  
+
   // Print HTML
-  echo('
+  echo ('
     <li class="list-group-item d-flex justify-content-between">
     <div class="p-2 mr-5"><h5><a href="listing.php?item_id=' . $item_id . '">' . $title . '</a></h5>' . $desc_shortened . '</div>
     <div class="text-center text-nowrap"><span style="font-size: 1.5em">£' . number_format($price, 2) . '</span><br/>' . $num_bids . $bid . '<br/>' . $time_remaining . '</div>
   </li>'
   );
 }
+
+// Populate Categories for Form
+function categories_form($placeholder)
+{
+  require_once "../database/setup.php";
+
+  $db->query("USE auction_site");
+  $query = "SELECT id, name FROM Categories";
+  $result = mysqli_query($db, $query)
+    or die('Error fetching categories' . $db->error);
+
+  echo "<option selected disabled>$placeholder</option>";
+  while ($row = mysqli_fetch_array($result)) {
+    $id = $row['id'];
+    $name = $row['name'];
+    echo "<option value='$id'>$name</option>";
+  }
+  $db->close();
+}
+
+// Find current highest bid for an item
+function highest_bid($item_id)
+{
+  require "../database/setup.php";
+
+  $db->query("USE auction_site");
+  $query = "SELECT MAX(bidPrice) AS highestBid FROM Bids WHERE itemId = $item_id";
+  $result = mysqli_query($db, $query)
+    or die('Error fetching highest bid:' . $db->error);
+
+  $row = mysqli_fetch_array($result);
+  $bid = $row['highestBid'];
+
+  $db->close();
+
+  return $bid;  
+}
+
+// Find the number of bids for an item
+function number_of_bids($item_id) {
+  require "../database/setup.php";
+
+  $db->query("USE auction_site");
+  $query = "SELECT COUNT(*) AS numberOfBids FROM Bids WHERE itemId = $item_id";
+  $result = mysqli_query($db, $query)
+    or die('Error fetching number of bids:' . $db->error);
+
+  $row = mysqli_fetch_array($result);
+  $bids_number = $row['numberOfBids'];
+
+  $db->close();
+
+  return $bids_number;  
+}
+
 
 ?>
