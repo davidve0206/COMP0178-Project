@@ -20,14 +20,14 @@
                   <i class="fa fa-search"></i>
                 </span>
               </div>
-              <input type="text" class="form-control border-left-0" id="keyword" placeholder="Search for anything">
+              <input type="text" class="form-control border-left-0" id="keyword" placeholder="Search for anything" name="keyword">
             </div>
           </div>
         </div>
         <div class="col-md-3 pr-0">
           <div class="form-group">
-            <label for="cat" class="sr-only">Search within:</label>
-            <select class="form-control" id="cat">
+            <label for="category" class="sr-only">Search within:</label>
+            <select class="form-control" id="category" name="category">
               <?php
               categories_form("Category: ");
               ?>
@@ -37,10 +37,10 @@
         <div class="col-md-3 pr-0">
           <div class="form-inline">
             <label class="mx-2" for="order_by">Sort by:</label>
-            <select class="form-control" id="order_by">
-              <option selected value="pricelow">Price (low to high)</option>
-              <option value="pricehigh">Price (high to low)</option>
-              <option value="date">Soonest expiry</option>
+            <select class="form-control" id="order_by" name="order_by">
+              <option value="endDate">Ending soonest</option>
+              <option value="currentPrice">Price (low to high)</option>
+              <option value="currentPrice DESC">Price (high to low)</option>
             </select>
           </div>
         </div>
@@ -57,19 +57,19 @@
 <?php
 // Retrieve these from the URL
 if (!isset($_GET['keyword'])) {
-  // TODO: Define behavior if a keyword has not been specified.
+  $keyword = null;
 } else {
   $keyword = $_GET['keyword'];
 }
 
-if (!isset($_GET['cat'])) {
-  // TODO: Define behavior if a category has not been specified.
+if (!isset($_GET['category'])) {
+  $category = null;
 } else {
-  $category = $_GET['cat'];
+  $category = $_GET['category'];
 }
 
 if (!isset($_GET['order_by'])) {
-  // TODO: Define behavior if an order_by value has not been specified.
+  $ordering = 'endDate';
 } else {
   $ordering = $_GET['order_by'];
 }
@@ -84,9 +84,26 @@ if (!isset($_GET['page'])) {
      retrieve data from the database. (If there is no form data entered,
      decide on appropriate default value/default query to make. */
 
-/* For the purposes of pagination, it would also be helpful to know the
-     total number of results that satisfy the above query */
-$num_results = 96; // TODO: Calculate me for real
+require "../database/setup.php";
+
+$db->query("USE auction_site");
+
+
+$query = "SELECT id, itemName, description, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice 
+FROM Items LEFT JOIN Bids ON Items.id = Bids.itemId ";
+
+if (!is_null($category)) {
+  $query .= "WHERE categoryId = $category ";
+}
+
+$query .= "GROUP BY id ORDER BY $ordering;";
+
+$result = mysqli_query($db, $query)
+  or die('Error fetching item information' . $db->error);
+$db->close();
+
+/* Working out total number of results that satisfy the above query so that pages can be displayed correctly */
+$num_results = $result->num_rows;
 $results_per_page = 10;
 $max_page = ceil($num_results / $results_per_page);
 ?>
@@ -99,28 +116,19 @@ $max_page = ceil($num_results / $results_per_page);
 
     <!-- Using a while loop to print a list item for each auction listing
      retrieved from the query -->
-
-    <!-- Initial implementation - needs to be reconfigured to work with search queries -->
     <?php
-    require "../database/setup.php";
-
-    $db->query("USE auction_site");
-    $query = "SELECT id, itemName, description, startPrice, endDate FROM Items";
-    $result = mysqli_query($db, $query)
-      or die('Error fetching item information' . $db->error);
 
     while ($row = mysqli_fetch_array($result)) {
       $item_id = $row['id'];
       $item_name = $row['itemName'];
       $description = $row['description'];
-      $startPrice = $row['startPrice'];
-      $current_price = max($startPrice, floatval(highest_bid($item_id)));
+      $current_price = $row['currentPrice'];
       $num_bids = number_of_bids($item_id);
       $end_date = new DateTime($row['endDate']);
       print_listing_li($item_id, $item_name, $description, $current_price, $num_bids, $end_date);
     }
-    
-    $db->close();
+
+
     ?>
 
   </ul>
