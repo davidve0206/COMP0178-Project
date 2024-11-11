@@ -58,11 +58,26 @@
       const email = document.getElementById("userEmail").value;
       const initialPassword = document.getElementById("initialPassword").value;
       const repeatPassword = document.getElementById("repeatPassword").value;
+      const accountBuyer = document.getElementById("accountBuyer").checked;
+      const accountSeller = document.getElementById("accountSeller").checked;
+
+      // Account type check
+      if (!accountBuyer && !accountSeller) {
+        alert("Please select an account type.");
+        return false;
+      }
 
       // Email check (regex might not be the best way)
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(email)) {
         alert("Please enter a valid email.");
+        return false;
+      }
+
+      // Password strength check, later switch to "^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+      const passwordPattern = /^(?!\s*$).+/;
+      if (!passwordPattern.test(initialPassword)) {
+        alert("Please enter a more difficult password.");
         return false;
       }
 
