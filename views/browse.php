@@ -1,6 +1,33 @@
 <?php include_once("header.php") ?>
 <?php require("utilities.php") ?>
 
+<?php
+// Retrieve search parameters from the URL - defined at top so that they can be used as values in the search fields to persist inputs
+if (!isset($_GET['keyword']) or trim($_GET['keyword']) == '') {
+  $keyword = null;
+} else {
+  $keyword = $_GET['keyword'];
+}
+
+if (!isset($_GET['category']) or $_GET['category'] == '') {
+  $category = null;
+} else {
+  $category = $_GET['category'];
+}
+
+if (!isset($_GET['order_by'])) {
+  $ordering = 'endDate';
+} else {
+  $ordering = $_GET['order_by'];
+}
+
+if (!isset($_GET['page'])) {
+  $curr_page = 1;
+} else {
+  $curr_page = $_GET['page'];
+}
+?>
+
 <div class="container">
 
   <h2 class="my-3">Browse listings</h2>
@@ -20,7 +47,8 @@
                   <i class="fa fa-search"></i>
                 </span>
               </div>
-              <input type="text" class="form-control border-left-0" id="keyword" placeholder="Search for anything" name="keyword">
+              <input type="text" class="form-control border-left-0" id="keyword" placeholder="Search for anything" name="keyword"
+                value=<?php echo $keyword ?>>
             </div>
           </div>
         </div>
@@ -29,7 +57,7 @@
             <label for="category" class="sr-only">Search within:</label>
             <select class="form-control" id="category" name="category">
               <?php
-              categories_form("Category: ");
+              categories_form("Category: ", $category, true);
               ?>
             </select>
           </div>
@@ -38,9 +66,18 @@
           <div class="form-inline">
             <label class="mx-2" for="order_by">Sort by:</label>
             <select class="form-control" id="order_by" name="order_by">
-              <option value="endDate">Ending soonest</option>
-              <option value="currentPrice">Price (low to high)</option>
-              <option value="currentPrice DESC">Price (high to low)</option>
+              <?php
+              // This makes sure that the selected value stays in the form after the page reload
+              $sorting_values = ["endDate" => "Ending soonest", "currentPrice" => "Price (low to high)", "currentPrice DESC" => "Price (high to low)"];
+
+              foreach ($sorting_values as $value => $name) {
+                if ($value == $ordering) {
+                  echo "<option value='$value' selected>$name</option>";
+                } else {
+                  echo "<option value='$value'>$name</option>";
+                }
+              }
+              ?>
             </select>
           </div>
         </div>
@@ -55,47 +92,31 @@
 </div>
 
 <?php
-// Retrieve these from the URL
-if (!isset($_GET['keyword'])) {
-  $keyword = null;
-} else {
-  $keyword = $_GET['keyword'];
-}
 
-if (!isset($_GET['category'])) {
-  $category = null;
-} else {
-  $category = $_GET['category'];
-}
-
-if (!isset($_GET['order_by'])) {
-  $ordering = 'endDate';
-} else {
-  $ordering = $_GET['order_by'];
-}
-
-if (!isset($_GET['page'])) {
-  $curr_page = 1;
-} else {
-  $curr_page = $_GET['page'];
-}
-
-/* TODO: Use above values to construct a query. Use this query to 
-     retrieve data from the database. (If there is no form data entered,
-     decide on appropriate default value/default query to make. */
+/* Construct SQL query, using search parameters if set. */
 
 require "../database/setup.php";
 
 $db->query("USE auction_site");
 
-
 $query = "SELECT id, itemName, description, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice 
 FROM Items LEFT JOIN Bids ON Items.id = Bids.itemId ";
 
-if (!is_null($category)) {
-  $query .= "WHERE categoryId = $category ";
+// Add keyword search clause if defined - searches itemName and description
+if (!is_null($keyword)) {
+  $query .= "WHERE itemName LIKE '%$keyword%' OR description LIKE '%$keyword%' ";
 }
 
+// Add category clause if defined
+if (!is_null($category)) {
+  if (!is_null($keyword)) {
+    $query .= "AND categoryId = $category ";
+  } else {
+    $query .= "WHERE categoryId = $category ";
+  }
+}
+
+// Add order by clause - default sort = endDate
 $query .= "GROUP BY id ORDER BY $ordering;";
 
 $result = mysqli_query($db, $query)
@@ -127,7 +148,6 @@ $max_page = ceil($num_results / $results_per_page);
       $end_date = new DateTime($row['endDate']);
       print_listing_li($item_id, $item_name, $description, $current_price, $num_bids, $end_date);
     }
-
 
     ?>
 

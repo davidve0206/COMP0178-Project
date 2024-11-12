@@ -43,7 +43,7 @@ if (!$_SESSION['loggedIn'] || !$_SESSION['isSeller']) {
             <div class="col-sm-10">
               <select class="form-control" id="auctionCategory" name="auctionCategory" required>
                 <?php
-                 categories_form('-');
+                 categories_form('-', null, false);
                 ?>
               </select>
               <small id="categoryHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Select a category for this item.</small>
