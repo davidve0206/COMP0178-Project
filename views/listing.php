@@ -1,5 +1,5 @@
 <?php include_once("header.php")?>
-<?php require("utilities.php")?>
+<?php require("../utils/utilities.php")?>
 
 <?php
   // Get info from the URL:

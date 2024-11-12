@@ -1,5 +1,6 @@
 <?php include_once("header.php") ?>
-<?php require("utilities.php") ?>
+<?php require("../utils/utilities.php") ?>
+<?php require_once("../database/setup.php") ?>
 
 <?php
 // If user is not logged in or not a seller, they should not be able to
@@ -43,7 +44,7 @@ if (!$_SESSION['loggedIn'] || !$_SESSION['isSeller']) {
             <div class="col-sm-10">
               <select class="form-control" id="auctionCategory" name="auctionCategory" required>
                 <?php
-                 categories_form('-', null, false);
+                categories_form($db, '-', null, false);
                 ?>
               </select>
               <small id="categoryHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Select a category for this item.</small>
@@ -97,5 +98,5 @@ if (!$_SESSION['loggedIn'] || !$_SESSION['isSeller']) {
 
 </div>
 
-
+<?php $db->close() ?>
 <?php include_once("footer.php") ?>

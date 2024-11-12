@@ -1,5 +1,6 @@
 <?php include_once("header.php") ?>
-<?php require("utilities.php") ?>
+<?php require("../utils/utilities.php") ?>
+<?php require_once("../database/setup.php") ?>
 
 <?php
 // Retrieve search parameters from the URL - defined at top so that they can be used as values in the search fields to persist inputs
@@ -57,7 +58,7 @@ if (!isset($_GET['page'])) {
             <label for="category" class="sr-only">Search within:</label>
             <select class="form-control" id="category" name="category">
               <?php
-              categories_form("Category: ", $category, true);
+              categories_form($db, "Category: ", $category, true);
               ?>
             </select>
           </div>
@@ -95,8 +96,6 @@ if (!isset($_GET['page'])) {
 
 /* Construct SQL query, using search parameters if set. */
 
-require "../database/setup.php";
-
 $db->query("USE auction_site");
 
 $query = "SELECT id, itemName, description, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice 
@@ -119,9 +118,7 @@ if (!is_null($category)) {
 // Add order by clause - default sort = endDate
 $query .= "GROUP BY id ORDER BY $ordering;";
 
-$result = mysqli_query($db, $query)
-  or die('Error fetching item information' . $db->error);
-$db->close();
+$result = mysqli_query($db, $query);
 
 /* Working out total number of results that satisfy the above query so that pages can be displayed correctly */
 $num_results = $result->num_rows;
@@ -144,11 +141,10 @@ $max_page = ceil($num_results / $results_per_page);
       $item_name = $row['itemName'];
       $description = $row['description'];
       $current_price = $row['currentPrice'];
-      $num_bids = number_of_bids($item_id);
+      $num_bids = number_of_bids($db, $item_id);
       $end_date = new DateTime($row['endDate']);
       print_listing_li($item_id, $item_name, $description, $current_price, $num_bids, $end_date);
     }
-
     ?>
 
   </ul>
@@ -216,6 +212,5 @@ $max_page = ceil($num_results / $results_per_page);
 
 </div>
 
-
-
+<?php $db->close(); ?>
 <?php include_once("footer.php") ?>
