@@ -57,7 +57,9 @@ function print_listing_li($item_id, $title, $desc, $price, $num_bids, $end_time)
 }
 
 // Populate Categories for Form
-function categories_form($placeholder)
+// If a category has already been selected, pass the id as $selected
+// If you want the option to select all categories, pass true as $all - currently this will only show if a category has been selected
+function categories_form($placeholder, $selected, $all)
 {
   require_once "../database/setup.php";
 
@@ -66,11 +68,25 @@ function categories_form($placeholder)
   $result = mysqli_query($db, $query)
     or die('Error fetching categories' . $db->error);
 
-  echo "<option selected disabled>$placeholder</option>";
-  while ($row = mysqli_fetch_array($result)) {
-    $id = $row['id'];
-    $name = $row['name'];
-    echo "<option value='$id'>$name</option>";
+  // If a category has already been selected, it will stay selected on page reload
+  if (is_null($selected)) {
+    echo "<option selected disabled>$placeholder</option>";
+    while ($row = mysqli_fetch_array($result)) {
+      $id = $row['id'];
+      $name = $row['name'];
+      echo "<option value='$id'>$name</option>";
+    }
+  } else {
+    echo $all ? "<option value=''>All</option>" : "<option disabled>$placeholder</option>";
+    while ($row = mysqli_fetch_array($result)) {
+      $id = $row['id'];
+      $name = $row['name'];
+      if ($id == $selected) {
+        echo "<option value='$id' selected>$name</option>";
+      } else {
+        echo "<option value='$id'>$name</option>";
+      }
+    }
   }
   $db->close();
 }
