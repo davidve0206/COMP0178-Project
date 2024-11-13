@@ -1,6 +1,7 @@
 <?php include_once("header.php") ?>
 <?php require("../utils/utilities.php") ?>
 <?php require_once("../database/setup.php") ?>
+<?php require_once("../utils/close_auctions.php") ?>
 
 <?php
 // Retrieve search parameters from the URL - defined at top so that they can be used as values in the search fields to persist inputs
