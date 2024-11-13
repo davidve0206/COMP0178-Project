@@ -1,8 +1,4 @@
 <?php
-  // FIXME: At the moment, I've allowed these values to be set manually.
-  // But eventually, with a database, these should be set automatically
-  // ONLY after the user's login credentials have been verified via a 
-  // database query.
   session_start();
 ?>
 
@@ -20,7 +16,7 @@
   <!-- Custom CSS file -->
   <link rel="stylesheet" href="css/custom.css">
 
-  <title>[My Auction Site] <!--CHANGEME!--></title>
+  <title>Video Games Auction</title>
 </head>
 
 
@@ -57,16 +53,22 @@
 	<li class="nav-item mx-1">
       <a class="nav-link" href="mybids.php">My Bids</a>
     </li>
-	<li class="nav-item mx-1">
+	  <li class="nav-item ml-3">
+      <a class="nav-link" href="notifications.php">Notifications</a>
+    </li>
+    <li class="nav-item mx-1">
       <a class="nav-link" href="recommendations.php">Recommended</a>
     </li>');
   }
   if (isset($_SESSION['isSeller']) && $_SESSION['isSeller']) {
   echo('
-	<li class="nav-item mx-1">
+	  <li class="nav-item mx-1">
       <a class="nav-link" href="mylistings.php">My Listings</a>
     </li>
-	<li class="nav-item ml-3">
+    <li class="nav-item ml-3">
+      <a class="nav-link" href="notifications.php">Notifications</a>
+    </li>
+	  <li class="nav-item ml-3">
       <a class="nav-link btn border-light" href="create_auction.php">+ Create auction</a>
     </li>');
   }
@@ -102,4 +104,5 @@
 
     </div>
   </div>
-</div> <!-- End modal -->
+</div>
+<!-- End modal -->
