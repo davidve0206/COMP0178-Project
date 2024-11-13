@@ -48,7 +48,7 @@
     }
 
     // Start Price
-    if (isset($_POST['auctionStartPrice']) && $_POST['auctionStartPrice'] !== '') {
+    if (isset($_POST['auctionStartPrice']) && trim($_POST['auctionStartPrice']) !== '') {
         $start_price = floatval($_POST['auctionStartPrice']);
 
         if ($start_price <= 0) {
@@ -59,14 +59,14 @@
     }
 
     // Reserve Price
-    $reserve_price = isset($_POST['auctionReservePrice']) && $_POST['auctionReservePrice'] !== '' ? floatval($_POST['auctionReservePrice']) : null;
+    $reserve_price = isset($_POST['auctionReservePrice']) && trim($_POST['auctionReservePrice']) !== '' ? floatval($_POST['auctionReservePrice']) : null;
 
     if (!is_null($reserve_price) && $reserve_price <= $start_price) {
         array_push($error_messages, 'The reserve price must be higher than the starting price.');
     }
 
     // Start Date
-    $start_date = isset($_POST['auctionStartDate']) && $_POST['auctionStartDate'] !== '' ? $db->real_escape_string($_POST['auctionStartDate']) : null;
+    $start_date = isset($_POST['auctionStartDate']) && trim($_POST['auctionStartDate']) !== '' ? $db->real_escape_string($_POST['auctionStartDate']) : null;
 
     if (!is_null($start_date) && new DateTime($start_date) < new DateTime()) {
         array_push($error_messages, 'The start date for the auction cannot be in the past.');

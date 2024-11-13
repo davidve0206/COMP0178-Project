@@ -1,4 +1,6 @@
 <?php include_once("header.php") ?>
+<?php require("../utils/utilities.php") ?>
+<?php require_once("../database/setup.php") ?>
 
 <?php
 // If user is not logged in or not a seller, they should not be able to
@@ -42,20 +44,7 @@ if (!$_SESSION['loggedIn'] || !$_SESSION['isSeller']) {
             <div class="col-sm-10">
               <select class="form-control" id="auctionCategory" name="auctionCategory" required>
                 <?php
-                require_once "../database/setup.php";
-
-                $db->query("USE auction_site");
-                $query = "SELECT id, name FROM Categories";
-                $result = mysqli_query($db, $query)
-                  or die('Error fetching categories' . $db->error);
-
-                echo '<option selected disabled>-</option>';
-                while ($row = mysqli_fetch_array($result)) {
-                  $id = $row['id'];
-                  $name = $row['name'];
-                  echo "<option value='$id'>$name</option>";
-                }
-                $db->close();
+                categories_form($db, '-', null, false);
                 ?>
               </select>
               <small id="categoryHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Select a category for this item.</small>
@@ -109,5 +98,5 @@ if (!$_SESSION['loggedIn'] || !$_SESSION['isSeller']) {
 
 </div>
 
-
+<?php $db->close() ?>
 <?php include_once("footer.php") ?>
