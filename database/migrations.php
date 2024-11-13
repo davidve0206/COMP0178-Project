@@ -65,7 +65,8 @@ function migrate()
     startPrice DECIMAL(7,2) NOT NULL,
     reservePrice DECIMAL(7,2) CHECK (reservePrice > startPrice),
     endDate TIMESTAMP(0) NOT NULL,
-    startDate TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0), 
+    startDate TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    isClosed BOOLEAN NOT NULL DEFAULT False,
     FOREIGN KEY (sellerId) REFERENCES Users(id),
     FOREIGN KEY (categoryId) REFERENCES Categories(id)
     )";
@@ -99,7 +100,10 @@ function migrate()
     CREATE TABLE Notifications
     (
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(40) NOT NULL
+    userId INT NOT NULL,
+    subject VARCHAR(50) NOT NULL,
+    message VARCHAR(255) NOT NULL,
+    FOREIGN KEY (userId) REFERENCES Users(id) ON DELETE CASCADE
     )";
     $db->query($create_notifications_statement);
 
