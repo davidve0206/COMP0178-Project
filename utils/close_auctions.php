@@ -1,6 +1,7 @@
 <?php
 require_once "console_log.php";
 require_once "mailer.php";
+require_once "store_notifications.php";
 
 function close_auctions(mysqli $db, Mailer $mailer) {
     $unclosed_auctions = $db->query("
@@ -8,7 +9,6 @@ function close_auctions(mysqli $db, Mailer $mailer) {
     FROM Items i JOIN Users u ON i.sellerId = u.id 
     WHERE i.isClosed = False AND i.endDate < NOW()");
 
-    $notifications_query = "INSERT INTO Notifications (userId, subject, message) VALUES ";
     $notifications_query_values = [];
     while ($row = $unclosed_auctions->fetch_assoc()) {  
         // Pull information from the row
@@ -60,8 +60,7 @@ function close_auctions(mysqli $db, Mailer $mailer) {
         }
 
         // Close by adding the notifications to the table and updating the item to be closed
-        $notifications_query .= implode(", ", $notifications_query_values);
-        $db->query($notifications_query);       
+        store_notifications($db, $notifications_query_values);
         $db->query("UPDATE Items SET isClosed = True WHERE id = $item_id");
     }
 }
