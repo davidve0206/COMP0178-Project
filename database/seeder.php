@@ -59,7 +59,9 @@ function seed(mysqli $db) {
         (1, 1),
         (1, 2),
         (1, 3),
-        (3, 1)
+        (1, 4),
+        (3, 1),
+        (3, 4)
     ";
     $db->query($create_followed_statement);
 }
