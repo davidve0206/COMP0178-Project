@@ -3,6 +3,9 @@
 // 
 /* Extract form data into variables, checking that they exist if required */
 
+// Check: I'm not sure I've worked out redirecting the user, per the TODO at the bottom. Worth working this out in the testing
+// phase
+
 // First, the queries into the database to get information (where relevant) to insert into the variables
 
 $db->query("USE auction_site");
@@ -60,10 +63,9 @@ if (count($error_messages) > 0) {
 } else {
     /* If everything looks good, make the appropriate call to insert data into the database. */
     $db->query("USE auction_site");
+    // Question: I've specified this at the beginning file. That means that this is redundant, correct? 
 
     // Prepare the base query 
-    // CHECK: I'm not sure if insert is the relevant method for linking a bid to an item id
-    // I think it's fine though, if that's how the userId was linked before.  
     $query = "INSERT INTO Bids (bidderId, itemId, bidPrice, bidDate) VALUES (?, ?, ?, ?)";
     $stmt = $db->prepare($query);
     $stmt->bind_param("iids", $bidder_id, $item_id, $bid_price, $bid_date);
