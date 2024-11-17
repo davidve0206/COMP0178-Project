@@ -100,11 +100,12 @@ function highest_bid($db, $item_id)
   $row = mysqli_fetch_array($result);
   $bid = $row['highestBid'];
 
-  return $bid;  
+  return $bid;
 }
 
 // Find the number of bids for an item
-function number_of_bids($db, $item_id) {
+function number_of_bids($db, $item_id)
+{
 
   $db->query("USE auction_site");
   $query = "SELECT COUNT(*) AS numberOfBids FROM Bids WHERE itemId = $item_id";
@@ -113,8 +114,63 @@ function number_of_bids($db, $item_id) {
   $row = mysqli_fetch_array($result);
   $bids_number = $row['numberOfBids'];
 
-  return $bids_number;  
+  return $bids_number;
 }
 
+// Build a listings query - for browse page, mybids, and mylistings
+function construct_listings_query($keyword, $category, $ordering, $bidder_id, $seller_id)
+{
+
+  $query = "SELECT id, itemName, description, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice 
+FROM Items LEFT JOIN Bids ON Items.id = Bids.itemId ";
+
+  // Add clause for bidder - used on mybids page
+  if (!is_null($bidder_id)) {
+    $query .= "WHERE Bids.bidderId = $bidder_id ";
+  }
+
+  // Add clause for seller - used on mylistings page
+  if (!is_null($seller_id)) {
+    $query .= "WHERE Items.sellerId = $seller_id ";
+  }
+
+  // Add keyword search clause if defined - searches itemName and description
+  if (!is_null($keyword)) {
+    $query .= "WHERE itemName LIKE '%$keyword%' OR description LIKE '%$keyword%' ";
+  }
+
+  // Add category clause if defined
+  if (!is_null($category)) {
+    if (!is_null($keyword)) {
+      $query .= "AND categoryId = $category ";
+    } else {
+      $query .= "WHERE categoryId = $category ";
+    }
+  }
+
+  // Add order by clause - default sort = endDate
+  $query .= "GROUP BY id ORDER BY $ordering";
+
+  return $query;
+}
+
+// Uses a while loop to print a list item for each auction listing
+//  retrieved from the query
+function listings_loop($db, $query_result)
+{
+  echo '<ul class="list-group">';
+
+  while ($row = mysqli_fetch_array($query_result)) {
+    $item_id = $row['id'];
+    $item_name = $row['itemName'];
+    $description = $row['description'];
+    $current_price = $row['currentPrice'];
+    $num_bids = number_of_bids($db, $item_id);
+    $end_date = new DateTime($row['endDate']);
+    print_listing_li($item_id, $item_name, $description, $current_price, $num_bids, $end_date);
+  }
+
+  echo '</ul>';
+}
 
 ?>

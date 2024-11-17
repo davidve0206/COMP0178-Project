@@ -99,25 +99,7 @@ if (!isset($_GET['page'])) {
 
 $db->query("USE auction_site");
 
-$query = "SELECT id, itemName, description, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice 
-FROM Items LEFT JOIN Bids ON Items.id = Bids.itemId ";
-
-// Add keyword search clause if defined - searches itemName and description
-if (!is_null($keyword)) {
-  $query .= "WHERE itemName LIKE '%$keyword%' OR description LIKE '%$keyword%' ";
-}
-
-// Add category clause if defined
-if (!is_null($category)) {
-  if (!is_null($keyword)) {
-    $query .= "AND categoryId = $category ";
-  } else {
-    $query .= "WHERE categoryId = $category ";
-  }
-}
-
-// Add order by clause - default sort = endDate
-$query .= "GROUP BY id ORDER BY $ordering";
+$query = construct_listings_query($keyword, $category, $ordering, null, null);
 
 $result = mysqli_query($db, $query);
 
@@ -136,29 +118,14 @@ $limit_result = mysqli_query($db, $limit_query);
 
 <div class="container mt-5">
 
-  <!-- TODO: If result set is empty, print an informative message. Otherwise... -->
+  <!-- If result set is empty, print an informative message -->
 
   <?php
   if ($num_results == 0) {
 
     echo '<p> No results found. </p>';
   } else {
-    // Using a while loop to print a list item for each auction listing
-    //  retrieved from the query
-
-    echo '<ul class="list-group">';
-
-    while ($row = mysqli_fetch_array($limit_result)) {
-      $item_id = $row['id'];
-      $item_name = $row['itemName'];
-      $description = $row['description'];
-      $current_price = $row['currentPrice'];
-      $num_bids = number_of_bids($db, $item_id);
-      $end_date = new DateTime($row['endDate']);
-      print_listing_li($item_id, $item_name, $description, $current_price, $num_bids, $end_date);
-    }
-
-    echo '</ul>';
+    listings_loop($db, $limit_result);
   }
   ?>
 
