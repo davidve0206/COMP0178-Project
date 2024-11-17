@@ -33,12 +33,12 @@ function seed(mysqli $db) {
     $db->query($categories_creation_statement);
 
     $items_creation_statement = "
-    INSERT INTO Items (id, itemName, description, sellerId, categoryId, startPrice, reservePrice, endDate)
+    INSERT INTO Items (id, itemName, description, sellerId, categoryId, startPrice, reservePrice, endDate, imagePath)
     VALUES
-        (1, 'Pac-Man', 'Arcade slot station, modded so you dont need coins', 2, 1, 100, 120, '2024-12-12 12:00:00'),
-        (2, 'Mega Drive', 'Lightly used Sega Mega Drive, no games', 2, 5, 20, 35, '2024-12-12 12:00:00'),
-        (3, 'Doom', 'Original Doom game CD-Rom, working', 3, 3, 200, 300, '2024-12-12 12:00:00'),
-        (4, 'Outer Wilds', 'Space Exploration Mystery', 2, 4, 15, 25, '2024-11-12 12:00:00')
+        (1, 'Pac-Man', 'Arcade slot station, modded so you dont need coins', 2, 1, 100, 120, '2024-12-12 12:00:00', '../images/pacman.webp'),
+        (2, 'Mega Drive', 'Lightly used Sega Mega Drive, no games', 2, 5, 20, 35, '2024-12-12 12:00:00', '../images/mega_drive.jpg'),
+        (3, 'Doom', 'Original Doom game CD-Rom, working', 3, 3, 200, 300, '2024-12-12 12:00:00', '../images/doom.webp'),
+        (4, 'Outer Wilds', 'Space Exploration Mystery', 2, 4, 15, 25, '2024-11-12 12:00:00', '../images/outer_wilds.jpg')
     ";
     $db->query($items_creation_statement);
 
