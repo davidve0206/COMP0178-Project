@@ -98,6 +98,29 @@
         }
     }
 
+    // Image upload
+    $image_path = null;
+
+    // Allowed file types and size for image upload
+    $allowedTypes = array("jpg", "jpeg", "png", "webp");
+    $maxFileSize = 2 * 1024 * 1024; // 2 MB
+
+    if (isset($_FILES['auctionImage']) && $_FILES['auctionImage']['error'] === UPLOAD_ERR_OK) {
+        $image_tmp = $_FILES['auctionImage']['tmp_name'];
+        $image_ext = strtolower(pathinfo($_FILES['auctionImage']['name'], PATHINFO_EXTENSION));
+
+        if (!in_array($image_ext, $allowedTypes)) {
+            die("Error: Only JPG, JPEG, PNG, and WEBP files are allowed.");
+        }
+        if ($_FILES['auctionImage']['size'] > $maxFileSize) {
+            die("Error: The file is too large. Maximum size allowed is " . ($maxFileSize / (1024 * 1024)) . " MB.");
+        }
+
+        $target_directory = "../images/";
+        $target_file = $target_directory . uniqid("img_") . "." . $image_ext;
+        move_uploaded_file($image_tmp, $target_file);
+        $image_path = $target_file;
+    }
     // Check for error messages
     
     if (count($error_messages) > 0) {
@@ -111,9 +134,9 @@
         $db->query("USE auction_site");
 
         // Prepare the base query 
-        $query = "INSERT INTO Items (itemName, description, sellerId, categoryId, startPrice, reservePrice, startDate, endDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO Items (itemName, description, sellerId, categoryId, startPrice, reservePrice, startDate, endDate, imagePath) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $db->prepare($query);
-        $stmt->bind_param("ssiiddss", $title, $description, $seller_id, $category_id, $start_price, $reserve_price, $start_date, $end_date);
+        $stmt->bind_param("ssiiddsss", $title, $description, $seller_id, $category_id, $start_price, $reserve_price, $start_date, $end_date, $image_path);
 
         // // Copilot code to log the query that is passed to the statement
         // function bind_query($query, $params)
@@ -128,7 +151,8 @@
         // echo $logged_query;
 
         if ($stmt->execute()) {
-            echo ('<div class="text-center">Auction successfully created! <a href="FIXME">View your new listing.</a></div>');
+            $auction_id = $stmt->insert_id; // Get the ID of the newly created auction
+            echo ('<div class="text-center">Auction successfully created! <a href="listing.php?item_id=' . $auction_id . '">View your new listing.</a></div>');
         } else {
             echo 'Error making Create Auction query' . $stmt->error;
         }
