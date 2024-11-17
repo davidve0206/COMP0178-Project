@@ -38,7 +38,11 @@ session_start();
         // Displays either login or logout on the right, depending on user's
         // current status (session).
         if (isset($_SESSION['loggedIn']) && $_SESSION['loggedIn'] == true) {
-          echo '<a class="nav-link" href="logout.php">Logout</a>';
+          echo '<div class="d-flex align-items-center">
+            <span class="navbar-text text-info">' . htmlspecialchars($_SESSION['username']) . '</span>
+            <span class="mx-2 text-muted">|</span>
+            <a class="nav-link p-0 text-danger" href="logout.php">Logout</a>
+          </div>';
         } else {
           echo '<button type="button" class="btn nav-link" data-toggle="modal" data-target="#loginModal">Login</button>';
         }
