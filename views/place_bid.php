@@ -39,7 +39,9 @@ if ($_POST["bidNumber"] < $currentPrice + 1) {
     array_push($error_messages, 'Your bid must be more than a pound higher than the current value.');
     // TODO: Make the increase in increment correspond to item value, so that a higher value item needs to have a greater bid
 } else {
+    // Update both the bid price and bid winner as they both depend on the bid being bigger than the last
     $bid_price = $_POST["bidNumber"];
+    $bid_winner = "1";
 }
 
 // bidDate
@@ -49,6 +51,12 @@ if ($now >= $endDate) {
 } else {
     $bid_date = $now;
 }
+
+// INSERT OUTBID FUNCTION HERE (Can't currently as I'm working on different versions of the codebase)
+// After we accept the new bid as valid, and before I commit the new bid to the database, I need to send a notification
+// and email to the prior bidder.
+//      I feel like we might need exception handling here, to make sure we don't accidentally end up in limbo, where there's
+//      no bid marked as the winning bid
 
 // Check for error messages
 if (count($error_messages) > 0) {
@@ -60,10 +68,11 @@ if (count($error_messages) > 0) {
 } else {
     /* If everything looks good, make the appropriate call to insert data into the database. */
 
+
     // Prepare the base query 
-    $query = "INSERT INTO Bids (bidderId, itemId, bidPrice, bidDate) VALUES (?, ?, ?, ?)";
+    $query = "INSERT INTO Bids (bidderId, itemId, isWinner, bidPrice, bidDate) VALUES (?, ?, ?, ?, ?)";
     $stmt = $db->prepare($query);
-    $stmt->bind_param("iids", $bidder_id, $item_id, $bid_price, $bid_date);
+    $stmt->bind_param("iiids", $bidder_id, $item_id, $bid_winner, $bid_price, $bid_date);
 
 
     // Debugging code, adapted from Ben's. You'd need to change the variables to use it 
