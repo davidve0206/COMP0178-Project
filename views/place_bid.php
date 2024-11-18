@@ -6,7 +6,7 @@
 // Check: I'm not sure I've worked out redirecting the user, per the TODO at the bottom. Worth working this out in the testing
 // phase
 
-// First, the queries into the database to get information (where relevant) to insert into the variables
+// First, the queries into the database to get information (where relevant) for the variables
 
 $db->query("USE auction_site");
 $query = "SELECT id, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice
@@ -35,25 +35,22 @@ if (!isset($_SESSION['userId'])) {
 }
 
 // bidPrice
-
 if ($_POST["bidNumber"] < $currentPrice + 1) {
     array_push($error_messages, 'Your bid must be more than a pound higher than the current value.');
-    // TODO: In a real-life scenario, you'd probably want the increment to correspond to the item value, such that the greater the value, the greater the increment
+    // TODO: Make the increase in increment correspond to item value, so that a higher value item needs to have a greater bid
 } else {
     $bid_price = $_POST["bidNumber"];
 }
 
 // bidDate
-
-$now = time();
-if ($now > $endDate) {
+$now = new DateTime();
+if ($now >= $endDate) {
     array_push($error_messages, 'Sorry, the auction has now expired.');
 } else {
     $bid_date = $now;
 }
 
 // Check for error messages
-
 if (count($error_messages) > 0) {
 
     foreach ($error_messages as $error) {
@@ -62,8 +59,6 @@ if (count($error_messages) > 0) {
     echo '<button onclick="history.back()" class="btn btn-primary">Go Back</button>';
 } else {
     /* If everything looks good, make the appropriate call to insert data into the database. */
-    $db->query("USE auction_site");
-    // Question: I've specified this at the beginning file. That means that this is redundant, correct? 
 
     // Prepare the base query 
     $query = "INSERT INTO Bids (bidderId, itemId, bidPrice, bidDate) VALUES (?, ?, ?, ?)";
@@ -95,5 +90,6 @@ if (count($error_messages) > 0) {
 }
 
 
-// TODO: Extract $_POST variables, check they're OK, and attempt to make a bid.
+//Old page text:  
+//TODO: Extract $_POST variables, check they're OK, and attempt to make a bid.
 // Notify user of success/failure and redirect/give navigation options.
