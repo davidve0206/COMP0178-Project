@@ -13,6 +13,7 @@ $query = "SELECT id, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPr
 FROM Items LEFT JOIN Bids ON Items.id = Bids.itemId ";
 
 $query .= "WHERE id = $item_id";
+// CHANGE: Damn, I'm not actually running this query. I need to make sure that I do that. 
 
 // Now assigning the returning results into variables 
 
