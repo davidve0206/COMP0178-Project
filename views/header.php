@@ -1,5 +1,6 @@
 <?php
   session_start();
+  require_once('../utils/verbose_errors.php');
 ?>
 
 
@@ -103,7 +104,10 @@
             <button type="submit" class="btn btn-primary form-control">Sign in</button>
           </form>
           <div class="text-center">or <a href="register.php">create an account</a></div>
+        </div>
       </div>
     </div>
   </div>
   <!-- End modal -->
+
+</body> 

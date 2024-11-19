@@ -20,6 +20,7 @@
   $stmt->bind_param("i", $item_id);
   $stmt->execute();
   $result = $stmt->get_result();
+  $auction = $result->fetch_assoc();
 
   // Fetch current bid
   $query_bids = "SELECT MAX(bidPrice) AS current_bid FROM Bids WHERE itemId = ?";
@@ -29,8 +30,6 @@
   $result_bids = $stmt_bids->get_result();
   $bid = $result_bids->fetch_assoc();
   $current_price = $bid['current_bid'] ?? $auction['startPrice'];
-
-  $auction = $result->fetch_assoc();
   $title = $auction['itemName'];
   $description = $auction['description'];
 

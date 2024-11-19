@@ -38,15 +38,15 @@ function seed(mysqli $db) {
         (1, 'Pac-Man', 'Arcade slot station, modded so you dont need coins', 2, 1, 100, 120, '2024-12-12 12:00:00', '../images/pacman.webp'),
         (2, 'Mega Drive', 'Lightly used Sega Mega Drive, no games', 2, 5, 20, 35, '2024-12-12 12:00:00', '../images/mega_drive.jpg'),
         (3, 'Doom', 'Original Doom game CD-Rom, working', 3, 3, 200, 300, '2024-12-12 12:00:00', '../images/doom.webp'),
-        (4, 'Outer Wilds', 'Space Exploration Mystery', 2, 4, 15, 25, '2024-11-12 12:00:00', 
-        (5, 'Portal 2', 'First-person sci-fi puzzle, original disc', 3, 3, 55, 70, '2024-11-20 12:00:00'),
-        (6, 'Super Mario 64', '3D Platformer, used cartridge in good condition', 3, 2, 150, 160, '2024-11-23 12:00:00'),
-        (7, 'Red Dead Redemption 2', 'Western shooting adventure, second-hand blu-ray disc', 2, 6, 33, 38, '2024-11-25 12:00:00'),
-        (8, 'Grand Theft Auto: Vice City', 'Build a criminal empire in this open-world action-adventure, condition as new', 2, 4, 85, 90, '2024-11-29 12:00:00'),
-        (9, 'Halo', 'First-person shooter set in the 26th century', 3, 6, 50, 60, '2024-12-02 12:00:00'),
-        (10, 'The Last of Us', 'Post-apocalyptic action-adventure', 2, 4, 44, 49, '2024-12-07 12:00:00'),
-        (11, 'Bloodborne', 'Gothic horror RPG, original disc', 3, 4, 60, 65, '2024-12-11 12:00:00'),
-        (12, 'Tetris', 'Tile-matching puzzle game, vintage edition', 2, 1, 149, 200, '2024-12-15 12:00:00')
+        (4, 'Outer Wilds', 'Space Exploration Mystery', 2, 4, 15, 25, '2024-11-12 12:00:00', '../images/outer_wilds.jpg'), 
+        (5, 'Portal 2', 'First-person sci-fi puzzle, original disc', 3, 3, 55, 70, '2024-11-20 12:00:00', NULL),
+        (6, 'Super Mario 64', '3D Platformer, used cartridge in good condition', 3, 2, 150, 160, '2024-11-23 12:00:00', NULL),
+        (7, 'Red Dead Redemption 2', 'Western shooting adventure, second-hand blu-ray disc', 2, 6, 33, 38, '2024-11-25 12:00:00', NULL),
+        (8, 'Grand Theft Auto: Vice City', 'Build a criminal empire in this open-world action-adventure, condition as new', 2, 4, 85, 90, '2024-11-29 12:00:00', NULL),
+        (9, 'Halo', 'First-person shooter set in the 26th century', 3, 6, 50, 60, '2024-12-02 12:00:00', NULL),
+        (10, 'The Last of Us', 'Post-apocalyptic action-adventure', 2, 4, 44, 49, '2024-12-07 12:00:00', NULL),
+        (11, 'Bloodborne', 'Gothic horror RPG, original disc', 3, 4, 60, 65, '2024-12-11 12:00:00', NULL),
+        (12, 'Tetris', 'Tile-matching puzzle game, vintage edition', 2, 1, 149, 200, '2024-12-15 12:00:00', NULL)
     ";
     $db->query($items_creation_statement);
 
