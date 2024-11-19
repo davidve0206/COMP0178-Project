@@ -1,6 +1,7 @@
 <?php include_once("header.php") ?>
 <?php require("../utils/utilities.php") ?>
 <?php require_once("../database/setup.php") ?>
+<?php require_once("../utils/close_auctions.php") ?>
 
 <?php
 // Retrieve search parameters from the URL - defined at top so that they can be used as values in the search fields to persist inputs
@@ -98,25 +99,7 @@ if (!isset($_GET['page'])) {
 
 $db->query("USE auction_site");
 
-$query = "SELECT id, itemName, description, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice 
-FROM Items LEFT JOIN Bids ON Items.id = Bids.itemId ";
-
-// Add keyword search clause if defined - searches itemName and description
-if (!is_null($keyword)) {
-  $query .= "WHERE itemName LIKE '%$keyword%' OR description LIKE '%$keyword%' ";
-}
-
-// Add category clause if defined
-if (!is_null($category)) {
-  if (!is_null($keyword)) {
-    $query .= "AND categoryId = $category ";
-  } else {
-    $query .= "WHERE categoryId = $category ";
-  }
-}
-
-// Add order by clause - default sort = endDate
-$query .= "GROUP BY id ORDER BY $ordering;";
+$query = construct_listings_query($keyword, $category, $ordering, null, null);
 
 $result = mysqli_query($db, $query);
 
@@ -124,30 +107,27 @@ $result = mysqli_query($db, $query);
 $num_results = $result->num_rows;
 $results_per_page = 10;
 $max_page = ceil($num_results / $results_per_page);
+$offset = 10 * ($curr_page - 1);
+
+// Limit results by page
+$limit_query = $query . " LIMIT 10 OFFSET $offset;";
+
+$limit_result = mysqli_query($db, $limit_query);
+
 ?>
 
 <div class="container mt-5">
 
-  <!-- TODO: If result set is empty, print an informative message. Otherwise... -->
+  <!-- If result set is empty, print an informative message -->
 
-  <ul class="list-group">
+  <?php
+  if ($num_results == 0) {
 
-    <!-- Using a while loop to print a list item for each auction listing
-     retrieved from the query -->
-    <?php
-
-    while ($row = mysqli_fetch_array($result)) {
-      $item_id = $row['id'];
-      $item_name = $row['itemName'];
-      $description = $row['description'];
-      $current_price = $row['currentPrice'];
-      $num_bids = number_of_bids($db, $item_id);
-      $end_date = new DateTime($row['endDate']);
-      print_listing_li($item_id, $item_name, $description, $current_price, $num_bids, $end_date);
-    }
-    ?>
-
-  </ul>
+    echo '<p> No results found. </p>';
+  } else {
+    listings_loop($db, $limit_result);
+  }
+  ?>
 
   <!-- Pagination for results listings -->
   <nav aria-label="Search results pages" class="mt-5">
@@ -163,47 +143,51 @@ $max_page = ceil($num_results / $results_per_page);
         }
       }
 
-      $high_page_boost = max(3 - $curr_page, 0);
-      $low_page_boost = max(2 - ($max_page - $curr_page), 0);
-      $low_page = max(1, $curr_page - 2 - $low_page_boost);
-      $high_page = min($max_page, $curr_page + 2 + $high_page_boost);
+      if ($num_results > 0) {
 
-      if ($curr_page != 1) {
-        echo ('
-    <li class="page-item">
-      <a class="page-link" href="browse.php?' . $querystring . 'page=' . ($curr_page - 1) . '" aria-label="Previous">
-        <span aria-hidden="true"><i class="fa fa-arrow-left"></i></span>
-        <span class="sr-only">Previous</span>
-      </a>
-    </li>');
-      }
+        $high_page_boost = max(3 - $curr_page, 0);
+        $low_page_boost = max(2 - ($max_page - $curr_page), 0);
+        $low_page = max(1, $curr_page - 2 - $low_page_boost);
+        $high_page = min($max_page, $curr_page + 2 + $high_page_boost);
 
-      for ($i = $low_page; $i <= $high_page; $i++) {
-        if ($i == $curr_page) {
-          // Highlight the link
+        if ($curr_page != 1) {
           echo ('
-    <li class="page-item active">');
-        } else {
-          // Non-highlighted link
-          echo ('
-    <li class="page-item">');
+      <li class="page-item">
+        <a class="page-link" href="browse.php?' . $querystring . 'page=' . ($curr_page - 1) . '" aria-label="Previous">
+          <span aria-hidden="true"><i class="fa fa-arrow-left"></i></span>
+          <span class="sr-only">Previous</span>
+        </a>
+      </li>');
         }
 
-        // Do this in any case
-        echo ('
-      <a class="page-link" href="browse.php?' . $querystring . 'page=' . $i . '">' . $i . '</a>
-    </li>');
+        for ($i = $low_page; $i <= $high_page; $i++) {
+          if ($i == $curr_page) {
+            // Highlight the link
+            echo ('
+      <li class="page-item active">');
+          } else {
+            // Non-highlighted link
+            echo ('
+      <li class="page-item">');
+          }
+
+          // Do this in any case
+          echo ('
+        <a class="page-link" href="browse.php?' . $querystring . 'page=' . $i . '">' . $i . '</a>
+      </li>');
+        }
+
+        if ($curr_page != $max_page) {
+          echo ('
+      <li class="page-item">
+        <a class="page-link" href="browse.php?' . $querystring . 'page=' . ($curr_page + 1) . '" aria-label="Next">
+          <span aria-hidden="true"><i class="fa fa-arrow-right"></i></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </li>');
+        }
       }
 
-      if ($curr_page != $max_page) {
-        echo ('
-    <li class="page-item">
-      <a class="page-link" href="browse.php?' . $querystring . 'page=' . ($curr_page + 1) . '" aria-label="Next">
-        <span aria-hidden="true"><i class="fa fa-arrow-right"></i></span>
-        <span class="sr-only">Next</span>
-      </a>
-    </li>');
-      }
       ?>
 
     </ul>

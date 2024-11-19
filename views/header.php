@@ -1,9 +1,5 @@
 <?php
-// FIXME: At the moment, I've allowed these values to be set manually.
-// But eventually, with a database, these should be set automatically
-// ONLY after the user's login credentials have been verified via a 
-// database query.
-session_start();
+  session_start();
 ?>
 
 
@@ -62,16 +58,22 @@ session_start();
 	<li class="nav-item mx-1">
       <a class="nav-link" href="mybids.php">My Bids</a>
     </li>
-	<li class="nav-item mx-1">
+	  <li class="nav-item ml-3">
+      <a class="nav-link" href="notifications.php">Notifications</a>
+    </li>
+    <li class="nav-item mx-1">
       <a class="nav-link" href="recommendations.php">Recommended</a>
     </li>');
-      }
-      if (isset($_SESSION['isSeller']) && $_SESSION['isSeller']) {
-        echo ('
-	<li class="nav-item mx-1">
+  }
+  if (isset($_SESSION['isSeller']) && $_SESSION['isSeller']) {
+  echo('
+	  <li class="nav-item mx-1">
       <a class="nav-link" href="mylistings.php">My Listings</a>
     </li>
-	<li class="nav-item ml-3">
+    <li class="nav-item ml-3">
+      <a class="nav-link" href="notifications.php">Notifications</a>
+    </li>
+	  <li class="nav-item ml-3">
       <a class="nav-link btn border-light" href="create_auction.php">+ Create auction</a>
     </li>');
       }
@@ -83,12 +85,10 @@ session_start();
   <div class="modal fade" id="loginModal">
     <div class="modal-dialog">
       <div class="modal-content">
-
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title">Login</h4>
         </div>
-
         <!-- Modal body -->
         <div class="modal-body">
           <form method="POST" action="login_result.php">
@@ -103,8 +103,7 @@ session_start();
             <button type="submit" class="btn btn-primary form-control">Sign in</button>
           </form>
           <div class="text-center">or <a href="register.php">create an account</a></div>
-        </div>
-
       </div>
     </div>
-  </div> <!-- End modal -->
+  </div>
+  <!-- End modal -->
