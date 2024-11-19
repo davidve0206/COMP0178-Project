@@ -24,7 +24,7 @@ if (!$_SESSION['loggedIn'] || !$_SESSION['isSeller']) {
       before they try to send it, but that kind of functionality should be
       extremely low-priority / only done after all database functions are
       complete. -->
-        <form method="post" action="create_auction_result.php">
+        <form method="post" action="create_auction_result.php" enctype="multipart/form-data">
           <div class="form-group row">
             <label for="auctionTitle" class="col-sm-2 col-form-label text-right">Item Name</label>
             <div class="col-sm-10">
@@ -48,6 +48,16 @@ if (!$_SESSION['loggedIn'] || !$_SESSION['isSeller']) {
                 ?>
               </select>
               <small id="categoryHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Select a category for this item.</small>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="auctionImage" class="col-sm-2 col-form-label text-right">Item Image</label>
+            <div class="col-sm-10">
+              <input type="file" class="form-control-file" id="auctionImage" name="auctionImage" accept="image/*" onchange="handleFileSelect()">
+              <small id="imageHelp" class="form-text text-muted">Optional. Upload a <b>single</b> (max 2 MB) image of the item. Supported formats are jpg, jpeg, png, or webp. </small>
+              <div id="fileNameContainer" style="margin-top: 10px;">
+                <span id="fileName" style="display:none;"></span>
+              </div>
             </div>
           </div>
           <div class="form-group row">
@@ -97,6 +107,24 @@ if (!$_SESSION['loggedIn'] || !$_SESSION['isSeller']) {
   </div>
 
 </div>
+
+
+<script>
+  // Function to make upload button and text invisible after upload
+  function handleFileSelect() {
+    const fileInput = document.getElementById("auctionImage");
+    const fileName = document.getElementById("fileName");
+    const optText = document.getElementById("imageHelp");
+    const file = fileInput.files[0];
+
+    if (file) {
+      optText.style.display = 'none';
+      fileInput.style.display = 'none';
+      fileName.style.display = 'inline';
+      fileName.textContent = `${file.name}`;
+    }
+  }
+</script>
 
 <?php $db->close() ?>
 <?php include_once("footer.php") ?>
