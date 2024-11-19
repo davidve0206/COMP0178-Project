@@ -8,14 +8,16 @@ function bidder_outbid(mysqli $db, Mailer $mailer)
     // Selecting and saving the Id the bidder who has just been outbid
     $select_userId = "SELECT bidderId AS userId, id AS bidId
     FROM Bids WHERE isWinner = 1";
-    $db->query($select_userId);
+    $result = $db->query($select_userId);
+    $row = $result->fetch_assoc();
     $userId = $row["userId"];
-    // CHECK: Check that the above way of formatting a query works
     // QUESTION: it fine if I use 1s and 0s, or should I be using True and False 
 
     // Selecting and saving their email as well 
     $select_userEmail = "SELECT email 
     FROM Users WHERE id = $userId";
+    $result = $db->query($select_userId);
+    $row = $result->fetch_assoc();
     $db->query($select_userEmail);
     $bidderEmail = $row['email'];
 
