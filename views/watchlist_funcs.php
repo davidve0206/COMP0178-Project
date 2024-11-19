@@ -26,11 +26,11 @@
   if ($_POST['functionname'] == "add_to_watchlist") {
     $query = "INSERT INTO FollowedItems ($user_id, $item_id)";
     $db->query($query);
-    $res = "success";
+    $res = "You have successfully been added to the watchlist";
   } else if ($_POST['functionname'] == "remove_from_watchlist") {
     $query = "DELETE FROM FollowedItems ($user_id, $item_id)";
     $db->query($query);
-    $res = "success";
+    $res = "You have successfully been removed from the watchlist";
   }
   // Note: Echoing from this PHP function will return the value as a string.
   // If multiple echo's in this file exist, they will concatenate together,

@@ -1,6 +1,9 @@
 <?php
 
-// 
+require("utilities.php");
+
+// TODO: Import Database 
+
 /* Extract form data into variables, checking that they exist if required */
 
 // Check: I'm not sure I've worked out redirecting the user, per the TODO at the bottom. Worth working this out in the testing
@@ -8,8 +11,7 @@
 
 // First, the queries into the database to get information (where relevant) for the variables
 
-$db->query("USE auction_site");
-$query = "SELECT id, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice
+$query = "SELECT id, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice 
 FROM Items LEFT JOIN Bids ON Items.id = Bids.itemId ";
 
 $query .= "WHERE id = $item_id";
