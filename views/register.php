@@ -1,52 +1,109 @@
-<?php include_once("header.php")?>
+<?php include_once("header.php") ?>
 
 <div class="container">
-<h2 class="my-3">Register new account</h2>
+  <h2 class="my-3">Register new account</h2>
 
-<!-- Create auction form -->
-<form method="POST" action="process_registration.php">
-  <div class="form-group row">
-    <label for="accountType" class="col-sm-2 col-form-label text-right">Registering as a:</label>
-	<div class="col-sm-10">
-	  <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="accountType" id="accountBuyer" value="buyer" checked>
-        <label class="form-check-label" for="accountBuyer">Buyer</label>
+  <!-- Create auction form -->
+  <form method="POST" action="process_registration.php" onsubmit="return formCheck()">
+    <div class="form-group row">
+      <label for="accountType" class="col-sm-2 col-form-label text-right">Registering as a:</label>
+      <div class="col-sm-10">
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="accountType" id="accountBuyer" value="buyer" onclick="toggleRadioRequired()">
+          <label class="form-check-label" for="accountBuyer">Buyer</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="accountType" id="accountSeller" value="seller" onclick="toggleRadioRequired()">
+          <label class="form-check-label" for="accountSeller">Seller</label>
+        </div>
+        <small id="accountTypeHelp" class="form-text-inline text-muted"><span class="text-danger">* Required.</span></small>
       </div>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="accountType" id="accountSeller" value="seller">
-        <label class="form-check-label" for="accountSeller">Seller</label>
+    </div>
+    <div class="form-group row">
+      <label for="userEmail" class="col-sm-2 col-form-label text-right">Email</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="userEmail" placeholder="Email" oninput="toggleRequired('emailHelp', this)">
+        <small id="emailHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
       </div>
-      <small id="accountTypeHelp" class="form-text-inline text-muted"><span class="text-danger">* Required.</span></small>
-	</div>
-  </div>
-  <div class="form-group row">
-    <label for="email" class="col-sm-2 col-form-label text-right">Email</label>
-	<div class="col-sm-10">
-      <input type="text" class="form-control" id="email" placeholder="Email">
-      <small id="emailHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
-	</div>
-  </div>
-  <div class="form-group row">
-    <label for="password" class="col-sm-2 col-form-label text-right">Password</label>
-    <div class="col-sm-10">
-      <input type="password" class="form-control" id="password" placeholder="Password">
-      <small id="passwordHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
     </div>
-  </div>
-  <div class="form-group row">
-    <label for="passwordConfirmation" class="col-sm-2 col-form-label text-right">Repeat password</label>
-    <div class="col-sm-10">
-      <input type="password" class="form-control" id="passwordConfirmation" placeholder="Enter password again">
-      <small id="passwordConfirmationHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
+    <div class="form-group row">
+      <label for="initialPassword" class="col-sm-2 col-form-label text-right">Password</label>
+      <div class="col-sm-10">
+        <input type="password" class="form-control" id="initialPassword" placeholder="Password" oninput="toggleRequired('passwordHelp', this)">
+        <small id="passwordHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
+      </div>
     </div>
+    <div class="form-group row">
+      <label for="repeatPassword" class="col-sm-2 col-form-label text-right">Repeat password</label>
+      <div class="col-sm-10">
+        <input type="password" class="form-control" id="repeatPassword" placeholder="Enter password again" oninput="toggleRequired('repeatPasswordHelp', this)">
+        <small id="repeatPasswordHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
+      </div>
+    </div>
+    <div class="form-group row">
+      <button type="submit" class="btn btn-primary form-control">Register</button>
+    </div>
+  </form>
+
+  <div class="text-center">Already have an account? <a href="" data-toggle="modal" data-target="#loginModal">Login</a>
+
   </div>
-  <div class="form-group row">
-    <button type="submit" class="btn btn-primary form-control">Register</button>
-  </div>
-</form>
 
-<div class="text-center">Already have an account? <a href="" data-toggle="modal" data-target="#loginModal">Login</a>
+  <?php include_once("footer.php") ?>
 
-</div>
+  <script>
+    function formCheck() {
 
-<?php include_once("footer.php")?>
+      // Read inputs
+      const email = document.getElementById("userEmail").value;
+      const initialPassword = document.getElementById("initialPassword").value;
+      const repeatPassword = document.getElementById("repeatPassword").value;
+      const accountBuyer = document.getElementById("accountBuyer").checked;
+      const accountSeller = document.getElementById("accountSeller").checked;
+
+      // Account type check
+      if (!accountBuyer && !accountSeller) {
+        alert("Please select an account type.");
+        return false;
+      }
+
+      // Email check (regex might not be the best way)
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email)) {
+        alert("Please enter a valid email.");
+        return false;
+      }
+
+      // Password strength check, later switch to "^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+      const passwordPattern = /^(?!\s*$).+/;
+      if (!passwordPattern.test(initialPassword)) {
+        alert("Please enter a more difficult password.");
+        return false;
+      }
+
+      // Password matching check
+      if (initialPassword !== repeatPassword) {
+        alert("Passwords do not match.");
+        return false;
+      }
+
+      // Continue form submission if all checks pass
+      return true;
+    }
+
+    // Required text visibility toggle for text inputs
+    function toggleRequired(helpId, inputField) {
+      const helpText = document.getElementById(helpId);
+      if (inputField.value) {
+        helpText.style.display = "none";
+      } else {
+        helpText.style.display = "inline";
+      }
+    }
+
+    // Required text visibility toggle for radio buttons
+    function toggleRadioRequired() {
+      const accountTypeHelp = document.getElementById("accountTypeHelp");
+      accountTypeHelp.style.display = "none";
+    }
+  </script>
