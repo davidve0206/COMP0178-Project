@@ -111,6 +111,20 @@ function migrate()
     )";
     $db->query($create_notifications_statement);
 
+    $create_ratings_statement = "
+    CREATE TABLE SellerRatings
+    (
+    sellerId INT NOT NULL,
+    itemId INT NOT NULL,
+    rating INT NOT NULL,
+    comment VARCHAR(255),
+    submittedTime TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    FOREIGN KEY (sellerId) REFERENCES Users(id) ON DELETE CASCADE,
+    FOREIGN KEY (itemId) REFERENCES Items(id) ON DELETE CASCADE,
+    CONSTRAINT unique_seller_item UNIQUE (sellerId, itemId)
+    )";
+    $db->query($create_ratings_statement);
+
     // Seed the fresh db with default data if you want
     require_once "seeder.php";
     seed($db);

@@ -10,11 +10,21 @@
   $item_id = $_GET['item_id'];
 
   // Fetch auction details
-  $query = "SELECT Items.*, Users.username, Categories.name AS category_name 
-              FROM Items 
-              JOIN Users ON Items.sellerId = Users.id 
-              JOIN Categories ON Items.categoryId = Categories.id 
-              WHERE Items.id = ?";
+  $query = "SELECT Items.*,
+                Users.username,
+                Categories.name AS category_name,
+                (SELECT COUNT(*) 
+                  FROM Items AS SubItems 
+                  WHERE SubItems.sellerId = Items.sellerId
+                ) AS seller_item_count,
+                (SELECT AVG(rating) 
+                  FROM SellerRatings 
+                  WHERE sellerId = Items.sellerId
+                ) AS seller_rating 
+            FROM Items 
+            JOIN Users ON Items.sellerId = Users.id 
+            JOIN Categories ON Items.categoryId = Categories.id 
+            WHERE Items.id = ?";
   $stmt = $db->prepare($query);
   $stmt->bind_param("i", $item_id);
   $stmt->execute();
@@ -32,9 +42,10 @@
   $total_bids = $result_bids->num_rows;
   $highest_bid = $result_bids->fetch_assoc();
   $current_price = $highest_bid['bidPrice'] ?? $auction['startPrice'];
-  $title = $auction['itemName'];
-  $description = $auction['description'];
-  console_log($highest_bid);
+  $seller_rating = $auction['seller_rating']
+                    ? number_format($auction['seller_rating'], 1) . "/5.0"
+                    : 'No ratings yet';
+  $seller_detail = "(Auctions: {$auction['seller_item_count']}, Rating: $seller_rating)";
 
   // TODO: Note: Auctions that have ended may pull a different set of data,
   //       like whether the auction ended in a sale or was cancelled due
@@ -68,7 +79,11 @@
           <p class="text-muted">Description: <?php echo htmlspecialchars($auction['description']); ?></p>
           <p class="text-muted">Closes: <?php echo date('D jS M, g:ia', strtotime($auction['endDate'])); echo $time_remaining; ?></p>
           <p class="text-muted">Category: <?php echo htmlspecialchars($auction['category_name']); ?></p>
-          <p class="text-muted">Seller: <?php echo htmlspecialchars($auction['username']); ?></p>
+          <p class="text-muted">Seller: <?php echo (
+            '<button type="button" class="btn btn-link p-0 align-baseline" data-toggle="modal" data-target="#sellerModal">'
+            . htmlspecialchars($auction['username']) 
+            . '</button>' 
+            . ' ' . $seller_detail); ?></p>
           <p class="text-muted">Starting bid: £<?php echo number_format($auction['startPrice'], 2); ?></p>
           <p class="text-muted">Number of bids: <?php echo number_format($total_bids); ?></p>
           
@@ -94,6 +109,27 @@
                   . number_format($current_price, 2) . ' by ' . $highest_bid['username']
                 : 'No bids were placed.'
                 ) ?></p>
+            <?php endif; ?>
+            <?php if (
+              isset($_SESSION['userId']) 
+              && isset($highest_bid)
+              && $highest_bid['isWinner']
+              && $_SESSION['userId'] == $highest_bid['bidderId']
+              ): ?>
+              <p class="font-weight-bold text-success">You won this auction!</p>
+              <form method="POST" action="rate_seller.php">
+                  <label for="reviewComment" class="col-form-label text-right">Rate your seller:</label>
+                  <div class="d-flex align-items-center">
+                    <span class="mr-2">1</span>
+                    <input type="range" class="form-range" id="rating" name="rating" min="1" max="5" step="1">
+                    <span class="ml-2">5</span>
+                  </div>
+                  <label for="reviewComment" class="col-form-label text-right">Comments</label>
+                  <textarea class="form-control mb-3" id="reviewComment" rows="4" name="comment" maxlength="255"></textarea>
+                  <input type="hidden" name="sellerId" value="<?php echo($auction['sellerId']); ?>">
+                  <input type="hidden" name="itemId" value="<?php echo($item_id); ?>">
+                  <button type="submit" class="btn btn-secondary form-control">Rate / Update Rating</button>
+                </form>
             <?php endif; ?>
           <?php else: ?>
             <?php if ($total_bids > 0): ?>
@@ -134,6 +170,43 @@
   </div>
 </div>
 
+<!-- Seller info modal -->
+<div class="modal fade" id="sellerModal">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Seller Ratings</h4>
+      </div>
+      <!-- Modal body -->
+      <div class="modal-body">
+        <?php
+          $query_ratings = "SELECT rating, comment, submittedTime
+                            FROM SellerRatings
+                            WHERE sellerId = ? ORDER BY submittedTime DESC";
+          $stmt_ratings = $db->prepare($query_ratings);
+          $stmt_ratings->bind_param("i", $auction['sellerId']);
+          $stmt_ratings->execute();
+          $result_ratings = $stmt_ratings->get_result();
+          $total_ratings = $result_ratings->num_rows;
+          if ($total_ratings > 0) {
+            while ($rating = $result_ratings->fetch_assoc()) {
+              echo(
+                '<p>Rating: ' 
+                . number_format($rating['rating'], 1) 
+                . '/5.0 - Submitted: ' 
+                . date('j M Y, g:ia', strtotime($rating['submittedTime'])) . '</p>');
+              echo('<p>Comments: ' . htmlspecialchars($rating['comment']) . '</p>');
+              echo('<hr>');
+            }
+          } else {
+            echo('<p>No ratings yet.</p>');
+          }
+        ?>
+    </div>
+  </div>
+</div>
+<!-- End modal -->
 
 
 <?php include_once("footer.php")?>

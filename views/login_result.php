@@ -4,7 +4,7 @@ require_once "../database/setup.php";
 $login_success = false;
 
 // Check no user is already logged in and there is info in the request
-if (!isset($_SESSION["user_id"]) && ($_POST["username"]) && isset($_POST["password"])) {
+if (!isset($_SESSION["user_id"]) && isset($_POST["username"]) && isset($_POST["password"])) {
     
     // Read the loggin attempt from the request
     $username = $_POST["username"];
