@@ -1,11 +1,10 @@
 <?php include_once("header.php")?>
 <?php require("../utils/utilities.php")?>
 <?php require("../database/setup.php")?>
+<?php require("../utils/verbose_errors.php")?>
+<?php require("../utils/console_log.php")?>
 
 <?php
-  // useful for debugging
-  error_reporting(E_ALL);
-  ini_set('display_errors', 1);
   
   // Get info from the URL:
   $item_id = $_GET['item_id'];
@@ -23,13 +22,14 @@
   $auction = $result->fetch_assoc();
 
   // Fetch current bid
-  $query_bids = "SELECT MAX(bidPrice) AS current_bid FROM Bids WHERE itemId = ?";
+  $query_bids = "SELECT bidPrice, bidderId, isHighest, isWinner AS current_bid FROM Bids WHERE itemId = ? ORDER BY bidPrice DESC";
   $stmt_bids = $db->prepare($query_bids);
   $stmt_bids->bind_param("i", $item_id);
   $stmt_bids->execute();
   $result_bids = $stmt_bids->get_result();
-  $bid = $result_bids->fetch_assoc();
-  $current_price = $bid['current_bid'] ?? $auction['startPrice'];
+  $total_bids = $result_bids->num_rows;
+  $highest_bid = $result_bids->fetch_assoc();
+  $current_price = $highest_bid['bidPrice'] ?? $auction['startPrice'];
   $title = $auction['itemName'];
   $description = $auction['description'];
 
@@ -65,7 +65,9 @@
           <p class="text-muted">Description: <?php echo htmlspecialchars($auction['description']); ?></p>
           <p class="text-muted">Closes: <?php echo date('D jS M, g:ia', strtotime($auction['endDate'])); echo $time_remaining; ?></p>
           <p class="text-muted">Category: <?php echo htmlspecialchars($auction['category_name']); ?></p>
+          <p class="text-muted">Seller: <?php echo htmlspecialchars($auction['username']); ?></p>
           <p class="text-muted">Starting bid: £<?php echo number_format($auction['startPrice'], 2); ?></p>
+          <p class="text-muted">Number of bids: <?php echo number_format($total_bids); ?></p>
 
           <?php if ($now < $end_time): ?>
             <div id="watch_nowatch" <?php if ($has_session && $watching) echo('style="display: none"');?> >
@@ -83,6 +85,20 @@
           <?php if ($now > $end_time): ?>
             <p>This auction ended <?php echo(date_format($end_time, 'j M H:i')); ?></p>
           <?php else: ?>
+            <?php if ($total_bids > 0): ?>
+              <p class="text-muted mb-0">Recent bids:</p>
+              <ul>
+                <!-- Showing only 3 bids for space -->
+                <?php for ($x = 0; $x <= 3; $x++) {
+                  $bid = $result_bids->fetch_assoc();
+                  if ($bid) {
+                    echo('<li class="text-muted">£' . number_format($bid['bidPrice'], 2) . '</li>');
+                  } else {
+                    break;
+                  }
+                }?>
+              </ul>
+            <?php endif; ?>
             <p class="lead">Current bid: £<?php echo(number_format($current_price, 2)); ?></p>
             <form method="POST" action="place_bid.php">
               <div class="input-group mb-3">
