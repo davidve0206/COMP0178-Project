@@ -1,25 +1,30 @@
 <?php
-
-require("utilities.php");
-
-// TODO: Import Database 
+require_once("../utils/verbose_errors.php");
+require_once("../utils/console_log.php");
+require_once("../utils/utilities.php");
+require_once("../database/setup.php");
+require_once("../utils/bid_notifications.php");
+session_start();
 
 /* Extract form data into variables, checking that they exist if required */
 
-// Check: I'm not sure I've worked out redirecting the user, per the TODO at the bottom. Worth working this out in the testing
-// phase
+// Get the itemId from the submitted form 
+if (isset($_POST["listingInformation"]) && !empty($_POST["listingInformation"])) {
+    $item_id = $_POST["listingInformation"];
+} else {
+    die("Error: Item ID is not set or is empty.");
+}
 
-// First, the queries into the database to get information (where relevant) for the variables
+// Next, the queries into the database to get information (where relevant) for the variables
 
 $query = "SELECT id, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice 
-FROM Items LEFT JOIN Bids ON Items.id = Bids.itemId ";
-
+FROM Items LEFT JOIN Bids ON Items.id = Bids.itemId";
 $query .= "WHERE id = $item_id";
-// CHANGE: Damn, I'm not actually running this query. I need to make sure that I do that. 
+$result = $db->query($query);
+$row = $result->fetch_assoc();
 
 // Now assigning the returning results into variables 
 
-$item_id = $row['id'];
 $endDate = new DateTime($row['endDate']);
 $currentPrice = $row['currentPrice'];
 
@@ -30,6 +35,9 @@ $error_messages = [];
 // bidderID
 if (!isset($_SESSION['userId'])) {
     array_push($error_messages, 'You must be logged in to bid on an auction.');
+}
+if (isset($_SESSION['isSeller']) && $_SESSION['isSeller']) {
+    array_push($error_messages, 'You must be registered as a buyer to bid as an auction');
 } else {
     $bidder_id = intval($_SESSION['userId']);
     if ($bidder_id == 0) {
@@ -38,12 +46,12 @@ if (!isset($_SESSION['userId'])) {
 }
 
 // bidPrice
-if ($_POST["bidNumber"] < $currentPrice + 1) {
+if ($_POST["bid"] < $currentPrice + 1) {
     array_push($error_messages, 'Your bid must be more than a pound higher than the current value.');
     // TODO: Make the increase in increment correspond to item value, so that a higher value item needs to have a greater bid
 } else {
     // Update both the bid price and bid winner as they both depend on the bid being bigger than the last
-    $bid_price = $_POST["bidNumber"];
+    $bid_price = $_POST["bid"];
     $bid_winner = "1";
 }
 
@@ -51,15 +59,8 @@ if ($_POST["bidNumber"] < $currentPrice + 1) {
 $now = new DateTime();
 if ($now >= $endDate) {
     array_push($error_messages, 'Sorry, the auction has now expired.');
-} else {
-    $bid_date = $now;
 }
 
-// INSERT OUTBID FUNCTION HERE (Can't currently as I'm working on different versions of the codebase)
-// After we accept the new bid as valid, and before I commit the new bid to the database, I need to send a notification
-// and email to the prior bidder.
-//      I feel like we might need exception handling here, to make sure we don't accidentally end up in limbo, where there's
-//      no bid marked as the winning bid
 
 // Check for error messages
 if (count($error_messages) > 0) {
@@ -71,27 +72,17 @@ if (count($error_messages) > 0) {
 } else {
     /* If everything looks good, make the appropriate call to insert data into the database. */
 
+    // First, notify people following the listings of the new bid
+
+    // bid_notifications($item_id, $db, $mailer);
+
+    // I feel like we might need exception handling here, to make sure we don't accidentally end up in limbo, where there's
+    // no bid marked as the winning bid
 
     // Prepare the base query 
-    $query = "INSERT INTO Bids (bidderId, itemId, isWinner, bidPrice, bidDate) VALUES (?, ?, ?, ?, ?)";
+    $query = "INSERT INTO Bids (bidderId, itemId, isWinner, bidPrice) VALUES (?, ?, ?, ?)";
     $stmt = $db->prepare($query);
-    $stmt->bind_param("iiids", $bidder_id, $item_id, $bid_winner, $bid_price, $bid_date);
-
-
-    // Debugging code, adapted from Ben's. You'd need to change the variables to use it 
-
-    //Copilot code to log the query that is passed to the statement
-    // function bind_query($query, $params)
-    // {
-    //     foreach ($params as $param) {
-    //         $query = preg_replace('/\?/', "'$param'", $query, 1);
-    //     }
-    //     return $query;
-    // }
-
-    // $logged_query = bind_query($query, $values);
-    // echo $logged_query;
-
+    $stmt->bind_param("iiid", $bidder_id, $item_id, $bid_winner, $bid_price);
     if ($stmt->execute()) {
         echo ('<div class="text-center">Auction successfully created! <a href="FIXME">View your new listing.</a></div>');
     } else {
@@ -101,7 +92,4 @@ if (count($error_messages) > 0) {
     $db->close();
 }
 
-
-//Old page text:  
-//TODO: Extract $_POST variables, check they're OK, and attempt to make a bid.
-// Notify user of success/failure and redirect/give navigation options.
+header("refresh:2; url=browse.php");

@@ -1,24 +1,18 @@
 <?php
-require_once "console_log.php";
-require_once "mailer.php";
-require_once "store_notifications.php";
+require_once("console_log.php");
+require_once("mailer.php");
+require_once("store_notifications.php");
 
-function bidder_outbid(mysqli $db, Mailer $mailer)
+function bid_notifications($listing_name, $new_bid, $item_id, mysqli $db, Mailer $mailer)
 {
+
     // Selecting and saving the Id the bidder who has just been outbid
-    $select_userId = "SELECT bidderId AS userId, id AS bidId
-    FROM Bids WHERE isWinner = 1";
-    $result = $db->query($select_userId);
+    $query = "SELECT bidderId AS userId, id AS bidId, email
+    FROM Bids b INNER JOIN users u ON b.bidderId = u.id
+    WHERE isHighest = 1";
+    $result = $db->query($query);
     $row = $result->fetch_assoc();
     $userId = $row["userId"];
-    // QUESTION: it fine if I use 1s and 0s, or should I be using True and False 
-
-    // Selecting and saving their email as well 
-    $select_userEmail = "SELECT email 
-    FROM Users WHERE id = $userId";
-    $result = $db->query($select_userId);
-    $row = $result->fetch_assoc();
-    $db->query($select_userEmail);
     $bidderEmail = $row['email'];
 
 
@@ -39,3 +33,9 @@ function bidder_outbid(mysqli $db, Mailer $mailer)
     $update_bid = "UPDATE bids SET isWinner = 0 FROM bids WHERE bidId=id";
     $db->query($update_bid);
 }
+
+// What do we need to do for the people following the listing? For now, we're treating this bid as independent from the above
+// Run a query through everyone in the watchlist  
+// Save as variables in memory
+// To each person, send an email and store a notification
+// I think that's it, we're not changing the database in any way with this set of actions
