@@ -105,6 +105,8 @@ function migrate()
     userId INT NOT NULL,
     subject VARCHAR(50) NOT NULL,
     message VARCHAR(255) NOT NULL,
+    isRead BOOLEAN NOT NULL DEFAULT False,
+    notificationTime TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     FOREIGN KEY (userId) REFERENCES Users(id) ON DELETE CASCADE
     )";
     $db->query($create_notifications_statement);
