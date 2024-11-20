@@ -79,8 +79,9 @@ function migrate()
     bidderId INT NOT NULL,
     itemId INT NOT NULL,
     bidPrice DECIMAL(7,2) NOT NULL,
-    bidDate TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    isHighest BOOL DEFAULT 1,
     isWinner BOOL DEFAULT 0,
+    bidDate TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     FOREIGN KEY (bidderId) REFERENCES Users(id) ON DELETE CASCADE,
     FOREIGN KEY (itemId) REFERENCES Items(id) ON DELETE CASCADE,
     CONSTRAINT PK_Bids PRIMARY KEY (bidderId, itemId, bidPrice)
