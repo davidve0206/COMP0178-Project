@@ -9,8 +9,8 @@ function close_auctions(mysqli $db, Mailer $mailer) {
     FROM Items i JOIN Users u ON i.sellerId = u.id 
     WHERE i.isClosed = False AND i.endDate < NOW()");
 
-    $notifications_query_values = [];
-    while ($row = $unclosed_auctions->fetch_assoc()) {  
+    while ($row = $unclosed_auctions->fetch_assoc()) {
+        $notifications_query_values = [];
         // Pull information from the row
         $item_id = $row['id'];
         $item_name = $row['itemName'];
