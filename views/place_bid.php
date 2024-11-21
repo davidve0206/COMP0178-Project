@@ -16,7 +16,7 @@ if (isset($_POST["listingInformation"]) && !empty($_POST["listingInformation"]))
 }
 //  Next, the queries into the database to get information (where relevant) for the variables
 
-$query = "SELECT id, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice 
+$query = "SELECT id, itemName, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice 
 FROM Items LEFT JOIN Bids ON Items.id = Bids.itemId WHERE id = ?";
 // $result = $db->query($query);
 $stmt = $db->prepare($query);
@@ -29,6 +29,7 @@ $row = $result->fetch_assoc();
 
 $endDate = $row['endDate'];
 $currentPrice = $row['currentPrice'];
+$itemName = $row['itemName'];
 
 // Checking that the queries are valid before inserting data into the database
 
@@ -37,7 +38,7 @@ $error_messages = [];
 // bidderID
 if (!isset($_SESSION['userId'])) {
     array_push($error_messages, 'You must be logged in to bid on an auction.');
-} elseif (isset($_SESSION['isSeller']) && $_SESSION['isSeller']) {
+} elseif ((isset($_SESSION['isSeller']) && $_SESSION['isSeller']) && !(isset($_SESSION['isBuyer']) && $_SESSION['isBuyer'])) {
     array_push($error_messages, 'You must be registered as a buyer to bid as an auction');
 } else {
     $bidder_id = intval($_SESSION['userId']);
@@ -75,7 +76,7 @@ if (count($error_messages) > 0) {
 
     // First, notify people following the listings of the new bid
 
-    // bid_notifications($itemNumber, $db, $mailer);
+    bid_notifications($itemName, $bid_price, $itemNumber, $db, $mailer);
     // I feel like we might need exception handling here, to make sure we don't accidentally end up in limbo, where there's
     // no bid marked as the winning bid
 

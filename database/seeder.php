@@ -6,11 +6,12 @@
  * @param mysqli $db
  * @return void
  */
-function seed(mysqli $db) {
-    
+function seed(mysqli $db)
+{
+
     # I am using my personal email in case we need to test, feel free to change for your own if you are testing that functionality
     # TODO: implement password hashing when we do it for the rest of the app... for now its just a text
-    
+
     $user_creation_statement = "
     INSERT INTO Users (id, username, password, email, firstName, lastName, address, isBuyer, isSeller)
     VALUES
@@ -56,10 +57,10 @@ function seed(mysqli $db) {
     INSERT INTO Bids (bidderId, itemId, bidPrice, isHighest, isWinner)
     VALUES
         (1, 1, 105, 0, 0),
-        (1, 3, 250, 1, 0),
+        (1, 3, 250, 0, 0),
         (3, 1, 110, 1, 0),
-        (3, 3, 251, 1, 0),
-        (1, 3, 252, 1, 0),
+        (3, 3, 251, 0, 0),
+        (1, 3, 252, 0, 0),
         (3, 3, 253, 1, 0),
         (1, 4, 26, 0, 0)
     ";
