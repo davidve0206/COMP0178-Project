@@ -5,47 +5,47 @@
 <?php require("../utils/console_log.php")?>
 
 <?php
-  
-  // Get info from the URL:
-  $item_id = $_GET['item_id'];
 
-  // Fetch auction details
-  $query = "SELECT Items.*,
-                Users.username,
-                Categories.name AS category_name,
-                (SELECT COUNT(*) 
-                  FROM Items AS SubItems 
-                  WHERE SubItems.sellerId = Items.sellerId
-                ) AS seller_item_count,
-                (SELECT AVG(rating) 
-                  FROM SellerRatings 
-                  WHERE sellerId = Items.sellerId
-                ) AS seller_rating 
-            FROM Items 
-            JOIN Users ON Items.sellerId = Users.id 
-            JOIN Categories ON Items.categoryId = Categories.id 
-            WHERE Items.id = ?";
-  $stmt = $db->prepare($query);
-  $stmt->bind_param("i", $item_id);
-  $stmt->execute();
-  $result = $stmt->get_result();
-  $auction = $result->fetch_assoc();
+// Get info from the URL:
+$item_id = $_GET['item_id'];
 
-  // Fetch current bid
-  $query_bids = "SELECT bidPrice, bidderId, isHighest, isWinner, Users.username
-                  FROM Bids JOIN Users ON Bids.bidderId = Users.id
-                  WHERE itemId = ? ORDER BY bidPrice DESC";
-  $stmt_bids = $db->prepare($query_bids);
-  $stmt_bids->bind_param("i", $item_id);
-  $stmt_bids->execute();
-  $result_bids = $stmt_bids->get_result();
-  $total_bids = $result_bids->num_rows;
-  $highest_bid = $result_bids->fetch_assoc();
-  $current_price = $highest_bid['bidPrice'] ?? $auction['startPrice'];
-  $seller_rating = $auction['seller_rating']
-                    ? number_format($auction['seller_rating'], 1) . "/5.0"
-                    : 'No ratings yet';
-  $seller_detail = "(Auctions: {$auction['seller_item_count']}, Rating: $seller_rating)";
+// Fetch auction details
+$query = "SELECT Items.*,
+              Users.username,
+              Categories.name AS category_name,
+              (SELECT COUNT(*) 
+                FROM Items AS SubItems 
+                WHERE SubItems.sellerId = Items.sellerId
+              ) AS seller_item_count,
+              (SELECT AVG(rating) 
+                FROM SellerRatings 
+                WHERE sellerId = Items.sellerId
+              ) AS seller_rating 
+          FROM Items 
+          JOIN Users ON Items.sellerId = Users.id 
+          JOIN Categories ON Items.categoryId = Categories.id 
+          WHERE Items.id = ?";
+$stmt = $db->prepare($query);
+$stmt->bind_param("i", $item_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$auction = $result->fetch_assoc();
+
+// Fetch current bid
+$query_bids = "SELECT bidPrice, bidderId, isHighest, isWinner, Users.username
+                FROM Bids JOIN Users ON Bids.bidderId = Users.id
+                WHERE itemId = ? ORDER BY bidPrice DESC";
+$stmt_bids = $db->prepare($query_bids);
+$stmt_bids->bind_param("i", $item_id);
+$stmt_bids->execute();
+$result_bids = $stmt_bids->get_result();
+$total_bids = $result_bids->num_rows;
+$highest_bid = $result_bids->fetch_assoc();
+$current_price = $highest_bid['bidPrice'] ?? $auction['startPrice'];
+$seller_rating = $auction['seller_rating']
+                  ? number_format($auction['seller_rating'], 1) . "/5.0"
+                  : 'No ratings yet';
+$seller_detail = "(Auctions: {$auction['seller_item_count']}, Rating: $seller_rating)";
 
 // TODO: Note: Auctions that have ended may pull a different set of data,
 //       like whether the auction ended in a sale or was cancelled due
@@ -64,8 +64,6 @@ $time_remaining = ($now < $end_time)
 $has_session = true;
 $watching = false;
 
-// I need to redefine the variable item_id here to be able to send it to place_bid.php
-$item_id = $_GET['item_id'];
 ?>
 
 <div class="container my-4">
@@ -161,7 +159,7 @@ $item_id = $_GET['item_id'];
                     <!-- Check to make sure the bid is higher than the current price -->
                     <input type="number" class="form-control" id="bid" name="bid" min="<?php echo $current_price + 1; ?>" required>
                     <!-- Carry the itemID into the form so that it can be used to make the bid -->
-                    <input type="hidden" name="listingInformation" value="<?php echo htmlspecialchars($item_id) ?>">
+                    <input type="hidden" name="listingInformation" value="<?php echo $item_id ?>">
                   </div>
                   <button type="submit" class="btn btn-primary form-control">Place bid</button>
                 </form>
@@ -214,9 +212,7 @@ $item_id = $_GET['item_id'];
 </div>
 <!-- End modal -->
 
-
 <?php include_once("footer.php") ?>
-
 
 <script>
   // JavaScript functions: addToWatchlist and removeFromWatchlist.
