@@ -16,8 +16,11 @@ if (isset($_POST["listingInformation"]) && !empty($_POST["listingInformation"]))
 }
 //  Next, the queries into the database to get information (where relevant) for the variables
 
-$query = "SELECT id, itemName, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice 
-FROM Items LEFT JOIN Bids ON Items.id = Bids.itemId WHERE id = ?";
+$query = "SELECT itemName, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice, bidderId, email
+FROM Items i 
+LEFT JOIN Bids b ON i.id = b.itemId 
+LEFT JOIN Users u ON u.id = b.bidderId
+WHERE i.id = ?";
 // $result = $db->query($query);
 $stmt = $db->prepare($query);
 $stmt->bind_param("i", $itemNumber);
@@ -25,11 +28,12 @@ $stmt->execute();
 $result = $stmt->get_result();
 $row = $result->fetch_assoc();
 
-// Now assigning the returning results into variables 
-
+// Now assigning the returned results into variables 
+$itemName = $row['itemName'];
 $endDate = $row['endDate'];
 $currentPrice = $row['currentPrice'];
-$itemName = $row['itemName'];
+$bidderId = $row['bidderId'];
+$bidderEmail = $row['email'];
 
 // Checking that the queries are valid before inserting data into the database
 
@@ -40,6 +44,8 @@ if (!isset($_SESSION['userId'])) {
     array_push($error_messages, 'You must be logged in to bid on an auction.');
 } elseif ((isset($_SESSION['isSeller']) && $_SESSION['isSeller']) && !(isset($_SESSION['isBuyer']) && $_SESSION['isBuyer'])) {
     array_push($error_messages, 'You must be registered as a buyer to bid as an auction');
+    // TODO: We're missing a check on whether the user already has the highest bid on the item
+    // TODO: We also want to check that people aren't bidding on their own items... 
 } else {
     $bidder_id = intval($_SESSION['userId']);
     if ($bidder_id == 0) {
@@ -50,10 +56,10 @@ if (!isset($_SESSION['userId'])) {
 // bidPrice
 if ($_POST["bid"] < $currentPrice + 1) {
     array_push($error_messages, 'Your bid must be more than a pound higher than the current value.');
-    // TODO: Make the increase in increment correspond to item value, so that a higher value item needs to have a greater bid
+    // (Fake) TODO: Make the increase in increment correspond to item value, so that a higher value item needs to have a greater bid
 } else {
     // Update both the bid price and bid winner as they both depend on the bid being bigger than the last
-    $bid_price = $_POST["bid"];
+    $newPrice = $_POST["bid"];
     $bid_winner = "1";
 }
 
@@ -62,7 +68,6 @@ $now = time();
 if ($now >= $endDate) {
     array_push($error_messages, 'Sorry, the auction has now expired.');
 }
-
 
 // Check for error messages
 if (count($error_messages) > 0) {
@@ -76,14 +81,14 @@ if (count($error_messages) > 0) {
 
     // First, notify people following the listings of the new bid
 
-    bid_notifications($itemName, $bid_price, $itemNumber, $db, $mailer);
-    // I feel like we might need exception handling here, to make sure we don't accidentally end up in limbo, where there's
+    bid_notifications($bidderId, $bidderEmail, $itemName, $currentPrice, $newPrice, $itemNumber, $db, $mailer);
+    // CHECK: I feel like we might need exception handling here, to make sure we don't accidentally end up in limbo, where there's
     // no bid marked as the winning bid
 
     // Prepare the base query 
     $query = "INSERT INTO Bids (bidderId, itemId, bidPrice) VALUES (?, ?, ?)";
     $stmt = $db->prepare($query);
-    $stmt->bind_param("iid", $bidder_id, $itemNumber, $bid_price);
+    $stmt->bind_param("iid", $bidder_id, $itemNumber, $newPrice);
     if ($stmt->execute()) {
         echo ('<div class="text-center">Auction successfully created! <a href="FIXME">View your new listing.</a></div>');
     } else {

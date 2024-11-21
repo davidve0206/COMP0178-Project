@@ -3,49 +3,73 @@ require_once("console_log.php");
 require_once("mailer.php");
 require_once("store_notifications.php");
 
-function bid_notifications($listing_name, $bid_amount, $item_id, mysqli $db, Mailer $mailer)
+function bid_notifications($bidderId, $bidderEmail, $listing_name, $currentPrice, $newPrice, $item_id, mysqli $db, Mailer $mailer)
 {
-    // Query to extract relevant information 
-    $query = "SELECT bidderId AS userId, id AS bidId, email
-    FROM Bids b INNER JOIN users u ON b.bidderId = u.id
-    WHERE isHighest = 1 AND b.itemId = $item_id";
-    $result = $db->query($query);
-
-    // Checking to see whether the item has any bids on it, and if so sending notifications to the outbid bidder
-    if ($result->num_rows > 0) {
+    // First we're sending notificaitons to the person who's just been outbid in place_bid.php
+    // Using the above variables defined there
+    if (isset($bidderId)) {
         // Debugging code
         // echo "$userId";
         // echo "$bidderEmail";
 
         // Extracting the results of the query
-        $row = $result->fetch_assoc();
-        $userId = $row["userId"];
-        $bidderEmail = $row['email'];
-        $bidId = $row['bidId'];
+        // $row = $result->fetch_assoc();
+        // $userId = $row["userId"];
+        // $bidderEmail = $row['email'];
 
         // Sending an email to the outbid bidder
         $bidderSubject = "You have been outbid";
-        $bidderMessage = "The new bid on ''$listing_name'' is $bid_amount pounds.";
+        $bidderMessage = "The new bid on ''$listing_name'' is $newPrice pounds.";
         $mailer->sendEmail($bidderEmail, $bidderSubject, $bidderMessage);
 
         // Storing a notification for the outbid bidder 
         $notifications_query_values = [];
-        $notifications_query_values[] = "($userId, '$bidderSubject', '$bidderMessage')";
+        $notifications_query_values[] = "($bidderId, '$bidderSubject', '$bidderMessage')";
         store_notifications($db, $notifications_query_values);
 
         // Registering the bid as no longer being the highest bid
         $update_bid = "UPDATE Bids SET isHighest = 0 WHERE isHighest = 1 AND itemId = $item_id";
         $db->query($update_bid);
-    } else {
     }
-} 
+    // Next we're making a query to see who's following the listed item, 
 
-// What do we need to do for the people following the listing? For now, we're treating this bid as independent from the above
+    // Query to extract information to notify people following the item that there's a new bid
+    $query = "SELECT f.userId AS followerId, bidderId , u.email, MAX(b.isHighest) as isHighest
+    FROM Items i
+    LEFT JOIN Bids b ON b.itemId = i.id
+    LEFT JOIN FollowedItems f ON i.id = f.itemId 
+    LEFT JOIN Users u ON f.userId = u.id
+    WHERE i.id = $item_id
+    GROUP BY i.id, bidderid";
+    $followerInformation = $db->query($query);
 
-// Run a query through everyone in the watchlist  
-// Save as variables in memory
-// To each person, send an email and store a notification
-// I think that's it, we're not changing the database in any way with this set of actions
+    // Loop to send followers information
+    while ($row = $followerInformation->fetch_assoc()) {
+        // Pull information from the current row
+        $followerId = $row["followerId"];
+        $bidderId = $row["bidderId"];
+        $followerEmail = $row['email'];
+        $isHighest = $row['isHighest'];
 
-// There's currently an issue in that, if there's an error in registering a notification, the email saying that you're outbid 
-// Still goes through
+        if ($isHighest == 1 && $followerId == $bidderId) {
+            // Skip this iteration of the loop as the bidder will be notified by the outbid functionality
+        } elseif ($bidderId == $followerId) {
+
+            // Send an email to followers
+            $followerSubject = "New bid on your followed item: ''$listing_name''";
+            $followerMessage = "There has been a new bid on ''$listing_name'' of $newPrice pounds. The previous bid on this item was $currentPrice pounds.";
+            $mailer->sendEmail($followerEmail, $followerSubject, $followerMessage);
+
+            // Store a notification for followers 
+            $notifications_query_values = [];
+            $notifications_query_values[] = "($followerId, '$followerSubject', '$followerMessage')";
+            store_notifications($db, $notifications_query_values);
+        }
+        // TODO: We'll want another type of email to send to the person who's placing the bid.
+
+
+        // TODO: I'm not going to cover this here, but we need to notify people who list the item that there are bids on them
+        // I think the best way to do this is to add the item to the watchlist when the listing is created, so that these 
+        // people can opt out of being notified.
+    }
+}
