@@ -53,11 +53,11 @@ function seed(mysqli $db) {
     # TODO: when we create a functionality to create bids, we should consume it here instead of creating them by hand
     # this will ensure any expected behaviours (i.e., auto-adding to watched list)
     $bids_creation_statement = "
-    INSERT INTO Bids (bidderId, itemId, bidPrice)
+    INSERT INTO Bids (bidderId, itemId, bidPrice, isHighest, isWinner)
     VALUES
-        (1, 1, 105),
-        (1, 3, 250),
-        (3, 1, 110)
+        (1, 1, 105, 0, 0),
+        (1, 3, 250, 1, 0),
+        (3, 1, 110, 1, 0)
     ";
     $db->query($bids_creation_statement);
 
