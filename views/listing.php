@@ -49,6 +49,9 @@ $time_remaining = ($now < $end_time)
 //       For now, this is hardcoded.
 $has_session = true;
 $watching = false;
+
+// I need to redefine the variable item_id here to be able to send it to place_bid.php
+$item_id = $_GET['item_id'];
 ?>
 
 <div class="container my-4">
@@ -93,7 +96,7 @@ $watching = false;
                 <!-- Check to make sure the bid is higher than the current price -->
                 <input type="number" class="form-control" id="bid" name="bid" min="<?php echo $current_price + 1; ?>" required>
                 <!-- Carry the itemID into the form so that it can be used to make the bid -->
-                <input type="hidden" name="listingInformation" value="$item_id">
+                <input type="hidden" name="listingInformation" value="<?php echo htmlspecialchars($item_id) ?>">
               </div>
               <button type=" submit" class="btn btn-primary form-control">Place bid</button>
             </form>
