@@ -16,6 +16,8 @@ if (isset($_POST["listingInformation"]) && !empty($_POST["listingInformation"]))
 }
 //  Next, the queries into the database to get information (where relevant) for the variables
 
+// TODO: I'm currently confusing my new bidder and old bidder. I can get the new one from 
+// The URL, and the old one from the query below. Need to make sure I separate the variables
 $query = "SELECT itemName, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice, bidderId, email
 FROM Items i 
 LEFT JOIN Bids b ON i.id = b.itemId 
@@ -35,8 +37,8 @@ $currentPrice = $row['currentPrice'];
 $bidderId = $row['bidderId'];
 $bidderEmail = $row['email'];
 
-// Checking that the queries are valid before inserting data into the database
 
+// Checking that the queries are valid before inserting data into the database
 $error_messages = [];
 
 // bidderID
