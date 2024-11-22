@@ -55,8 +55,10 @@
   <div class="card mx-auto" style="max-width: 1000px;">
     <div class="card-body">
       <div class="text-center">
-        <img src="<?php echo htmlspecialchars($auction['imagePath']); ?>" class="img-fluid rounded mb-3" style="max-width: 500px; max-height: 400px; width: auto; height: auto;">
-      </div>
+        <?php if (!empty($auction['imagePath'])): ?>
+          <img src="<?php echo htmlspecialchars($auction['imagePath']); ?>" class="img-fluid rounded mb-3" style="max-width: 500px; max-height: 400px; width: auto; height: auto;">
+        <?php endif; ?>
+    </div>
       <h3 class="card-title"><?php echo htmlspecialchars($auction['itemName']); ?></h3>
 
       <div class="row"> <!-- Begin parallel layout -->
