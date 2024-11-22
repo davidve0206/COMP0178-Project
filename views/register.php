@@ -16,7 +16,32 @@
           <input class="form-check-input" type="radio" name="accountType" id="accountSeller" value="seller" onclick="toggleRadioRequired()">
           <label class="form-check-label" for="accountSeller">Seller</label>
         </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="accountType" id="accountMixed" value="mixed" onclick="toggleRadioRequired()">
+          <label class="form-check-label" for="accountMixed">Mixed</label>
+        </div>
         <small id="accountTypeHelp" class="form-text-inline text-muted"><span class="text-danger">* Required.</span></small>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="firstName" class="col-sm-2 col-form-label text-right">First Name</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="firstName" placeholder="First Name" oninput="toggleRequired('fnHelp', this)">
+        <small id="fnHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="lastName" class="col-sm-2 col-form-label text-right">Last Name</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="lastName" placeholder="Last Name" oninput="toggleRequired('lnHelp', this)">
+        <small id="lnHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="username" class="col-sm-2 col-form-label text-right">Username</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="firstName" placeholder="Username" oninput="toggleRequired('usernameHelp', this)">
+        <small id="usernameHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
       </div>
     </div>
     <div class="form-group row">
@@ -24,6 +49,13 @@
       <div class="col-sm-10">
         <input type="text" class="form-control" id="userEmail" placeholder="Email" oninput="toggleRequired('emailHelp', this)">
         <small id="emailHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="address" class="col-sm-2 col-form-label text-right">Address</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="userEmail" placeholder="Adress" oninput="toggleRequired('addressHelp', this)">
+        <small id="addressHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
       </div>
     </div>
     <div class="form-group row">
