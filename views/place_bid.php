@@ -16,16 +16,20 @@ if (isset($_POST["listingInformation"]) && !empty($_POST["listingInformation"]))
 }
 //  Next, the queries into the database to get information (where relevant) for the variables
 
-// TODO: I'm currently confusing my new bidder and old bidder. I can get the new one from 
-// The URL, and the old one from the query below. Need to make sure I separate the variables
-$query = "SELECT itemName, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice, bidderId, email
-FROM Items i 
-LEFT JOIN Bids b ON i.id = b.itemId 
-LEFT JOIN Users u ON u.id = b.bidderId
-WHERE i.id = ?";
-// $result = $db->query($query);
+$query = "SELECT itemName, endDate, IFNULL(bidPrice, startPrice) AS currentPrice, 
+bidderId, u.email AS buyerEmail, sellerId, s.email AS sellerEmail
+    FROM Items i 
+    LEFT JOIN Bids b ON i.id = b.itemId 
+    LEFT JOIN Users u ON u.id = b.bidderId
+    LEFT JOIN Users s ON s.id = i.sellerId
+    WHERE i.id = ? AND ((
+        SELECT max(bidPrice) as highestBid
+        FROM Bids h
+        WHERE itemId = ?
+        GROUP BY itemId
+    ) = bidPrice OR bidPrice IS NULL)";
 $stmt = $db->prepare($query);
-$stmt->bind_param("i", $itemNumber);
+$stmt->bind_param("ii", $itemNumber, $itemNumber);
 $stmt->execute();
 $result = $stmt->get_result();
 $row = $result->fetch_assoc();
@@ -34,25 +38,32 @@ $row = $result->fetch_assoc();
 $itemName = $row['itemName'];
 $endDate = $row['endDate'];
 $currentPrice = $row['currentPrice'];
-$bidderId = $row['bidderId'];
-$bidderEmail = $row['email'];
-
+$previousBidderId = $row['bidderId'];
+$previousBidderEmail = $row['buyerEmail'];
+$sellerId = $row['sellerId'];
+$sellerEmail = $row['sellerEmail'];
 
 // Checking that the queries are valid before inserting data into the database
 $error_messages = [];
 
-// bidderID
+// Current bidder: valid session
 if (!isset($_SESSION['userId'])) {
     array_push($error_messages, 'You must be logged in to bid on an auction.');
 } elseif ((isset($_SESSION['isSeller']) && $_SESSION['isSeller']) && !(isset($_SESSION['isBuyer']) && $_SESSION['isBuyer'])) {
     array_push($error_messages, 'You must be registered as a buyer to bid as an auction');
-    // TODO: We're missing a check on whether the user already has the highest bid on the item
-    // TODO: We also want to check that people aren't bidding on their own items... 
 } else {
-    $bidder_id = intval($_SESSION['userId']);
-    if ($bidder_id == 0) {
+    $currentBidderId = intval($_SESSION['userId']);
+    if ($currentBidderId == 0) {
         array_push($error_messages, 'Invalid bidder ID.');
     }
+}
+// Current bidder: valid bidder 
+if ($currentBidderId == $previousBidderId) {
+    array_push($error_messages, 'You already have the highest bid for this item.');
+    // Error here, in that we're just 
+}
+if ($currentBidderId == $sellerId) {
+    array_push($error_messages, 'You cannot bid on an item that you listed.');
 }
 
 // bidPrice
@@ -83,14 +94,26 @@ if (count($error_messages) > 0) {
 
     // First, notify people following the listings of the new bid
 
-    bid_notifications($bidderId, $bidderEmail, $itemName, $currentPrice, $newPrice, $itemNumber, $db, $mailer);
+    bid_notifications(
+        $currentBidderId,
+        $previousBidderId,
+        $previousBidderEmail,
+        $sellerId,
+        $sellerEmail,
+        $itemName,
+        $currentPrice,
+        $newPrice,
+        $itemNumber,
+        $db,
+        $mailer
+    );
     // CHECK: I feel like we might need exception handling here, to make sure we don't accidentally end up in limbo, where there's
     // no bid marked as the winning bid
 
     // Prepare the base query 
     $query = "INSERT INTO Bids (bidderId, itemId, bidPrice) VALUES (?, ?, ?)";
     $stmt = $db->prepare($query);
-    $stmt->bind_param("iid", $bidder_id, $itemNumber, $newPrice);
+    $stmt->bind_param("iid", $currentBidderId, $itemNumber, $newPrice);
     if ($stmt->execute()) {
         echo ('<div class="text-center">Auction successfully created! <a href="FIXME">View your new listing.</a></div>');
     } else {
