@@ -114,9 +114,9 @@ if (count($error_messages) > 0) {
     $stmt = $db->prepare($query);
     $stmt->bind_param("iid", $currentBidderId, $itemNumber, $newPrice);
     if ($stmt->execute()) {
-        echo ('<div class="text-center">Auction successfully created! <a href="FIXME">View your new listing.</a></div>');
+        echo ('<div class="text-center">Bid successfully created!');
     } else {
-        echo 'Error making Create Auction query' . $stmt->error;
+        echo 'Error making Place Bid query' . $stmt->error;
     }
     $stmt->close();
     $db->close();
