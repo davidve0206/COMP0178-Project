@@ -52,7 +52,7 @@ function bid_notifications($bidderId, $bidderEmail, $listing_name, $currentPrice
         $isHighest = $row['isHighest'];
 
         if ($isHighest == 1 && $followerId == $bidderId) {
-            // Skip this iteration of the loop as the bidder will be notified by the outbid functionality
+            // Skip this iteration of the loop as the bidder will be notified by the outbid functionality above
         } elseif ($followerId == $bidderId) {
 
             // Send an email to followers
