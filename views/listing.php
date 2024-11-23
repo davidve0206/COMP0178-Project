@@ -74,10 +74,6 @@ if (isset($_SESSION['userId'])) {
     $watching = false;
   } elseif ($followerRows == 1) {
     $watching = true;
-  } else {
-    // CHECK: it's technically possible that someone has two entries in the FollowedItems table, which would mean 
-    // they get multiple notifications everytime there's a change. Probably in a real world scenario we'd send this 
-    // to a log file and flag it as a problem. Seems out of scope for this project. 
   }
 } else {
   $has_session = false;

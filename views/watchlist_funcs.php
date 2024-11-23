@@ -5,7 +5,7 @@
   if (!isset($_POST['functionname']) || !isset($_POST['argument_1']) || !isset($_POST['argument_2']) || !isset($_POST['argument_3'])) {
     return;
   }
-  // Extract variables from the POST variables
+  // Extract variables from the POST variables (follower_rows exists to check that the user isn't already on the watchlist)
   $item_id = $_POST['argument_1'];
   $user_id = $_POST['argument_2'];
   $follower_rows = $_POST['argument_3'];
