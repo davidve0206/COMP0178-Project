@@ -60,7 +60,6 @@ if (!isset($_SESSION['userId'])) {
 // Current bidder: valid bidder 
 if ($currentBidderId == $previousBidderId) {
     array_push($error_messages, 'You already have the highest bid for this item.');
-    // Error here, in that we're just 
 }
 if ($currentBidderId == $sellerId) {
     array_push($error_messages, 'You cannot bid on an item that you listed.');
