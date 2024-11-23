@@ -258,6 +258,7 @@ if (isset($_SESSION['userId'])) {
           if (objT == "success") {
             $("#watch_nowatch").hide();
             $("#watch_watching").show();
+            location.reload()
           } else {
             var mydiv = document.getElementById("watch_nowatch");
             mydiv.appendChild(document.createElement("br"));
@@ -293,6 +294,7 @@ if (isset($_SESSION['userId'])) {
           if (objT == "success") {
             $("#watch_watching").hide();
             $("#watch_nowatch").show();
+            location.reload()
           } else {
             var mydiv = document.getElementById("watch_watching");
             mydiv.appendChild(document.createElement("br"));

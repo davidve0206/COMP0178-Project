@@ -164,8 +164,7 @@
         $db->query($query);
         $db->close();
     }
-    // We probably want to be redirected on listing an auction, no? 
-    // header("refresh:2; url=browse.php");
+    header("refresh:2; url=browse.php");
     ?>
 
 </div>
