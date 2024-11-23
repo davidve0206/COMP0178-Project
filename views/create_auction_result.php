@@ -158,11 +158,6 @@
             echo 'Error making Create Auction query' . $stmt->error;
         }
         $stmt->close();
-
-        // Make a second query to add the person listing the item to the watchlist of that auction
-        $query = "INSERT INTO FollowedItems (userId, itemId) VALUES ($seller_id, $auction_id)";
-        $db->query($query);
-        $db->close();
     }
     header("refresh:2; url=browse.php");
     ?>
