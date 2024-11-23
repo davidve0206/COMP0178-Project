@@ -25,15 +25,46 @@
     }
   }
 
+  if (!isset($_GET['page'])) {
+    $curr_page = 1;
+  } else {
+    $curr_page = $_GET['page'];
+  }
+
   // Perform a query to pull up their auctions.
   $db->query("USE auction_site");
 
   $query = construct_listings_query(null, null, "endDate", null, $user_id);
   $result = mysqli_query($db, $query);
 
-  // Loop through results and print them out as list items.
-  listings_loop($db, $result);
+  /* Working out total number of results that satisfy the above query so that pages can be displayed correctly */
+  $num_results = $result->num_rows;
+  $results_per_page = 10;
+  $max_page = ceil($num_results / $results_per_page);
+  $offset = 10 * ($curr_page - 1);
 
+  // Limit results by page
+  $limit_query = $query . " LIMIT 10 OFFSET $offset;";
+
+  $limit_result = mysqli_query($db, $limit_query);
   ?>
 
-  <?php include_once("footer.php") ?>
+  <div class="container mt-5">
+
+    <!-- If result set is empty, print an informative message -->
+
+    <?php
+    if ($num_results == 0) {
+
+      echo '<p> No results found. </p>';
+    } else {
+      listings_loop($db, $limit_result);
+    }
+    ?>
+
+    <?php include_once('../utils/pagination.php') ?>
+
+
+  </div>
+</div>
+<?php include_once("footer.php") ?>
