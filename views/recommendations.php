@@ -33,20 +33,32 @@
 
   // Perform a query to pull up auctions they might be interested in.
   $db->query("USE auction_site");
-
-  $query = "SELECT id, itemName, description, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice FROM Items, Bids
+  $query = "SELECT id, itemName, description, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice
+            FROM Items, Bids
             WHERE Items.id = Bids.itemId
-            AND Bids.bidderId IN (
-                SELECT bidderId FROM Bids
-                WHERE itemId IN (
-                  SELECT Items.id FROM Items, Bids
-                  WHERE Items.id = Bids.itemId
-                  AND Bids.bidderId = $user_id)
-                AND bidderId <> $user_id )
+            AND endDate > NOW()
+            AND Items.categoryId IN (
+              SELECT DISTINCT(categoryId)
+              FROM Items
+              WHERE id IN (
+                SELECT DISTINCT(itemId)
+                FROM Bids
+                WHERE bidderId IN (
+                  SELECT DISTINCT(bidderId) FROM Bids
+                  WHERE itemId IN (
+                    SELECT DISTINCT(itemId)
+                    FROM Bids
+                    WHERE bidderId = $user_id
+                  )
+                  AND bidderId <> $user_id
+                )
+              )
+            )
             AND Items.id NOT IN (
-                SELECT Items.id FROM Items, Bids
-                WHERE Items.id = Bids.itemId
-                AND Bids.bidderId = $user_id)
+              SELECT DISTINCT(itemId)
+              FROM Bids
+              WHERE bidderId = $user_id
+            )
             GROUP BY Items.id";
 
   $result = mysqli_query($db, $query);
