@@ -1,6 +1,7 @@
 <?php
   session_start();
   require_once('../utils/verbose_errors.php');
+  require_once('../database/setup.php');
 ?>
 
 
@@ -56,30 +57,45 @@
       <?php
       if (isset($_SESSION['isBuyer']) && $_SESSION['isBuyer']) {
         echo ('
-	<li class="nav-item mx-1">
-      <a class="nav-link" href="mybids.php">My Bids</a>
-    </li>
-	  <li class="nav-item ml-3">
-      <a class="nav-link" href="notifications.php">Notifications</a>
-    </li>
-    <li class="nav-item mx-1">
-      <a class="nav-link" href="recommendations.php">Recommended</a>
-    </li>');
-  }
-  if (isset($_SESSION['isSeller']) && $_SESSION['isSeller']) {
-  echo('
-	  <li class="nav-item mx-1">
-      <a class="nav-link" href="mylistings.php">My Listings</a>
-    </li>
-    <li class="nav-item ml-3">
-      <a class="nav-link" href="notifications.php">Notifications</a>
-    </li>
-	  <li class="nav-item ml-3">
-      <a class="nav-link btn border-light" href="create_auction.php">+ Create auction</a>
-    </li>');
+          <li class="nav-item mx-1">
+            <a class="nav-link" href="mybids.php">My Bids</a>
+          </li>
+          <li class="nav-item mx-1">
+            <a class="nav-link" href="recommendations.php">Recommended</a>
+          </li>');
+        }
+      if (isset($_SESSION['isSeller']) && $_SESSION['isSeller']) {
+        echo('
+          <li class="nav-item mx-1">
+            <a class="nav-link" href="mylistings.php">My Listings</a>
+          </li>
+          <li class="nav-item ml-3">
+            <a class="nav-link btn border-light" href="create_auction.php">+ Create auction</a>
+          </li>');
+      }
+      echo '</ul>';
+      if (isset($_SESSION['userId'])) {
+        // Get unread notifications
+        $query_result = $db->query(
+          "SELECT COUNT(*) as unread FROM Notifications WHERE userId = " . $_SESSION['userId'] . " AND isRead = 0"
+        );
+        $unread_count = $query_result->fetch_assoc();
+        $unread_badge = (
+          $unread_count['unread'] > 0 
+          ? '<span class="badge badge-pill badge-primary mx-1">'. $unread_count['unread'] . '</span>'
+          : ''
+        );
+        echo('
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item ml-3">
+              <a class="nav-link" href="notifications.php">' .
+              'Notifications'
+              . $unread_badge
+              . '</a>
+            </li>
+          </ul>');
       }
       ?>
-    </ul>
   </nav>
 
   <!-- Login modal -->
