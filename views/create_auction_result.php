@@ -122,7 +122,7 @@
         $image_path = $target_file;
     }
     // Check for error messages
-    
+
     if (count($error_messages) > 0) {
 
         foreach ($error_messages as $error) {
@@ -137,6 +137,7 @@
         $query = "INSERT INTO Items (itemName, description, sellerId, categoryId, startPrice, reservePrice, startDate, endDate, imagePath) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $db->prepare($query);
         $stmt->bind_param("ssiiddsss", $title, $description, $seller_id, $category_id, $start_price, $reserve_price, $start_date, $end_date, $image_path);
+
 
         // // Copilot code to log the query that is passed to the statement
         // function bind_query($query, $params)
@@ -157,12 +158,12 @@
             echo 'Error making Create Auction query' . $stmt->error;
         }
         $stmt->close();
-        $db->close();
     }
-
+    header("refresh:2; url=browse.php");
     ?>
 
 </div>
+
 
 
 <?php include_once("footer.php") ?>
