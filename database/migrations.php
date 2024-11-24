@@ -103,7 +103,7 @@ function migrate()
     (
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
     userId INT NOT NULL,
-    subject VARCHAR(50) NOT NULL,
+    subject VARCHAR(100) NOT NULL,
     message VARCHAR(255) NOT NULL,
     isRead BOOLEAN NOT NULL DEFAULT False,
     notificationTime TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
