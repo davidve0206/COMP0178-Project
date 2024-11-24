@@ -57,15 +57,12 @@ function seed(mysqli $db)
     INSERT INTO Bids (bidderId, itemId, bidPrice, isHighest, isWinner)
     VALUES
         (1, 1, 105, 0, 0),
-        (1, 3, 250, 1, 0),
-        (3, 1, 110, 1, 0),
-        (3, 12, 151, 1, 0)
         (1, 3, 250, 0, 0),
         (3, 1, 110, 1, 0),
         (3, 3, 251, 0, 0),
         (1, 3, 252, 0, 0),
         (3, 3, 253, 1, 0),
-        (1, 4, 26, 0, 0)
+        (1, 4, 26, 1, 0)
     ";
     $db->query($bids_creation_statement);
 
