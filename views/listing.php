@@ -233,25 +233,22 @@ if (isset($_SESSION['userId'])) {
     // JavaScript functions: addToWatchlist and removeFromWatchlist.
 
     function addToWatchlist(button) {
-      console.log("These print statements are helpful for debugging btw");
-
       // This performs an asynchronous call to a PHP function using POST method.
       // Sends item ID, user ID, and followerRows as arguments to that function.
       $.ajax('watchlist_funcs.php', {
         type: "POST",
         data: {
           functionname: 'add_to_watchlist',
-          argument_1: <?php echo $item_id; ?>,
-          argument_2: <?php echo $user_id; ?>,
-          argument_3: <?php echo $followerRows; ?>
+          itemId: <?php echo $item_id; ?>,
+          userId: <?php echo $user_id; ?>,
+          followerRows: <?php echo $followerRows; ?>
         },
 
         success: function(obj, textstatus) {
           // Callback function for when call is successful and returns obj
-          console.log("Success");
           var objT = obj.trim();
 
-          if (objT == "success") {
+          if (objT == "Item successfully added to the watchlist") {
             $("#watch_nowatch").hide();
             $("#watch_watching").show();
             location.reload()
@@ -262,9 +259,7 @@ if (isset($_SESSION['userId'])) {
           }
         },
 
-        error: function(obj, textstatus) {
-          console.log("Error");
-        }
+        error: function(obj, textstatus) {}
       }); // End of AJAX call
 
     } // End of addToWatchlist func
@@ -272,22 +267,20 @@ if (isset($_SESSION['userId'])) {
     function removeFromWatchlist(button) {
       // This performs an asynchronous call to a PHP function using POST method.
       // Sends item ID as an argument to that function.
-      console.log("These print statements are helpful for debugging btw")
       $.ajax('watchlist_funcs.php', {
         type: "POST",
         data: {
           functionname: 'remove_from_watchlist',
-          argument_1: <?php echo $item_id; ?>,
-          argument_2: <?php echo $user_id; ?>,
-          argument_3: <?php echo $followerRows; ?>
+          itemId: <?php echo $item_id; ?>,
+          userId: <?php echo $user_id; ?>,
+          followerRows: <?php echo $followerRows; ?>
         },
 
         success: function(obj, textstatus) {
           // Callback function for when call is successful and returns obj
-          console.log("Success");
           var objT = obj.trim();
 
-          if (objT == "success") {
+          if (objT == "Item successfully removed from the watchlist") {
             $("#watch_watching").hide();
             $("#watch_nowatch").show();
             location.reload()
@@ -298,9 +291,7 @@ if (isset($_SESSION['userId'])) {
           }
         },
 
-        error: function(obj, textstatus) {
-          console.log("Error");
-        }
+        error: function(obj, textstatus) {}
       }); // End of AJAX call
 
     } // End of RemoveFromWatchlist func
