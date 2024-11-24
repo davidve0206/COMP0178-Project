@@ -9,8 +9,8 @@ function close_auctions(mysqli $db, Mailer $mailer) {
     FROM Items i JOIN Users u ON i.sellerId = u.id 
     WHERE i.isClosed = False AND i.endDate < NOW()");
 
-    $notifications_query_values = [];
-    while ($row = $unclosed_auctions->fetch_assoc()) {  
+    while ($row = $unclosed_auctions->fetch_assoc()) {
+        $notifications_query_values = [];
         // Pull information from the row
         $item_id = $row['id'];
         $item_name = $row['itemName'];
@@ -32,7 +32,7 @@ function close_auctions(mysqli $db, Mailer $mailer) {
             $seller_subject = "Auction Closed";
             $seller_message = "The auction for item $item_name has closed. The winning bid was {$highest_bid['bidPrice']}.";
             $mailer->sendEmail($seller_email, $seller_subject, $seller_message);
-            $notifications_query_values[] = "(?, $seller_id, '$seller_subject', '$seller_message')";
+            $notifications_query_values[] = "($seller_id, '$seller_subject', '$seller_message')";
 
             // Send email to the winner
             $winner_subject = "You Won!";
