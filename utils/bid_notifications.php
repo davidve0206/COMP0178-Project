@@ -26,7 +26,7 @@ function bid_notifications(
     // Store a notification for the seller
     $notifications_query_values = [];
     $notifications_query_values[] = "($sellerId, '$sellerSubject', '$sellerMessage')";
-    store_notifications($db, $notifications_query_values);
+    
 
     // We're sending notificaitons to the person who's just been outbid in place_bid.php
     if (isset($previousBidderId)) {
@@ -44,10 +44,8 @@ function bid_notifications(
         $bidderMessage = "The new bid on ''$listing_name'' is $newPrice pounds.";
         $mailer->sendEmail($bidderEmail, $bidderSubject, $bidderMessage);
 
-        // Storing a notification for the outbid bidder 
-        $notifications_query_values = [];
+        // Add notification to the list of notifications to be stored
         $notifications_query_values[] = "($previousBidderId, '$bidderSubject', '$bidderMessage')";
-        store_notifications($db, $notifications_query_values);
     }
     // Next we're sending email to whoever might be following the bid
 
@@ -79,13 +77,14 @@ function bid_notifications(
                 $followerMessage = "There has been a new bid on ''$listing_name'' of $newPrice pounds. The previous bid on this item was $currentPrice pounds.";
                 $mailer->sendEmail($followerEmail, $followerSubject, $followerMessage);
 
-                // Store a notification for followers 
-                $notifications_query_values = [];
+                // Add the notification to the list of notifications to be stored
                 $notifications_query_values[] = "($followerId, '$followerSubject', '$followerMessage')";
-                store_notifications($db, $notifications_query_values);
             }
         }
     }
+    // Store all notifications at once
+    store_notifications($db, $notifications_query_values);
+
     // Registering the previous bid as no longer being the  highest bid
     $update_bid = "UPDATE Bids SET isHighest = 0 WHERE isHighest = 1 AND itemId = $item_id";
     $db->query($update_bid);
