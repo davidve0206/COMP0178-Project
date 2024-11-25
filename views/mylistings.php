@@ -34,7 +34,7 @@
   // Perform a query to pull up their auctions.
   $db->query("USE auction_site");
 
-  $query = construct_listings_query(null, null, "endDate", null, $user_id);
+  $query = construct_listings_query(null, null, "endDate", null, $user_id, false);
   $result = mysqli_query($db, $query);
 
   /* Working out total number of results that satisfy the above query so that pages can be displayed correctly */

@@ -118,7 +118,7 @@ function number_of_bids($db, $item_id)
 }
 
 // Build a listings query - for browse page, mybids, and mylistings
-function construct_listings_query($keyword, $category, $ordering, $bidder_id, $seller_id)
+function construct_listings_query($keyword, $category, $ordering, $bidder_id, $seller_id, $active_only)
 {
 
   $query = "SELECT id, itemName, description, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice 
@@ -145,6 +145,14 @@ FROM Items LEFT JOIN Bids ON Items.id = Bids.itemId ";
       $query .= "AND categoryId = $category ";
     } else {
       $query .= "WHERE categoryId = $category ";
+    }
+  }
+
+  if ($active_only) {
+    if (!is_null($category) || !is_null($keyword)) {
+      $query .= "AND endDate > CURRENT_TIMESTAMP ";
+    } else {
+      $query .= "WHERE endDate > CURRENT_TIMESTAMP ";
     }
   }
 
