@@ -28,6 +28,13 @@ if (!isset($_GET['page'])) {
 } else {
   $curr_page = $_GET['page'];
 }
+
+if (!isset($_GET['active-auctions'])) {
+  $active_auctions = false;
+} else {
+  $active_auctions = true;
+}
+
 ?>
 
 <div class="container">
@@ -39,9 +46,9 @@ if (!isset($_GET['page'])) {
      Search/sort specs are passed to this page through parameters in the URL
      (GET method of passing data to a page). -->
     <form method="get" action="browse.php">
-      <div class="row">
-        <div class="col-md-5 pr-0">
-          <div class="form-group">
+      <div class="row align-items-center">
+        <div class="col-md-4 pr-0">
+          <div class="form-group mb-0">
             <label for="keyword" class="sr-only">Search keyword:</label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -54,8 +61,8 @@ if (!isset($_GET['page'])) {
             </div>
           </div>
         </div>
-        <div class="col-md-3 pr-0">
-          <div class="form-group">
+        <div class="col-md-2 pr-0">
+          <div class="form-group mb-0">
             <label for="category" class="sr-only">Search within:</label>
             <select class="form-control" id="category" name="category">
               <?php
@@ -83,6 +90,17 @@ if (!isset($_GET['page'])) {
             </select>
           </div>
         </div>
+        <div class="col-md-2">
+          <div class="form-check-inline">
+            <label class="mx-2 mb-0" for="active-auctions">Active auctions:</label>
+            <input type="checkbox" name="active-auctions"
+              <?php
+              if ($active_auctions) {
+                echo 'checked';
+              }
+              ?>>
+          </div>
+        </div>
         <div class="col-md-1 px-0">
           <button type="submit" class="btn btn-primary">Search</button>
         </div>
@@ -99,7 +117,7 @@ if (!isset($_GET['page'])) {
 
 $db->query("USE auction_site");
 
-$query = construct_listings_query($keyword, $category, $ordering, null, null);
+$query = construct_listings_query($keyword, $category, $ordering, null, null, $active_auctions);
 
 $result = mysqli_query($db, $query);
 
