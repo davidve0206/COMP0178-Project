@@ -62,7 +62,7 @@ function seed(mysqli $db)
         (3, 3, 251, 0, 0),
         (1, 3, 252, 0, 0),
         (3, 3, 253, 1, 0),
-        (1, 4, 26, 0, 0)
+        (1, 4, 26, 1, 0)
     ";
     $db->query($bids_creation_statement);
 
