@@ -85,12 +85,39 @@
     }
 
     // Address
-    if (!isset($_POST['address']) || trim($_POST['address']) == '') {
+    if (!isset($_POST['addressStreet']) || trim($_POST['addressStreet']) == '') {
+        array_push($error_messages, 'Address street is required.');
+    } else {
+        $addressStreet = $db->real_escape_string($_POST['addressStreet']);
+        if (strlen($addressStreet) > 100) {
+            array_push($error_messages, 'Address street cannot exceed 100 characters.');
+        }
+    }
+
+    if (!isset($_POST['addressTown']) || trim($_POST['addressTown']) == '') {
+        array_push($error_messages, 'Town is required.');
+    } else {
+        $addressTown = $db->real_escape_string($_POST['addressTown']);
+        if (strlen($addressTown) > 50) {
+            array_push($error_messages, 'Town cannot exceed 50 characters.');
+        }
+    }
+
+    if (!isset($_POST['addressCountry']) || trim($_POST['addressCountry']) == '') {
+        array_push($error_messages, 'Country is required.');
+    } else {
+        $addressCountry = $db->real_escape_string($_POST['addressCountry']);
+        if (strlen($addressCountry) > 100) {
+            array_push($error_messages, 'Country cannot exceed 50 characters.');
+        }
+    }
+
+    if (!isset($_POST['addressPostcode']) || trim($_POST['addressPostcode']) == '') {
         array_push($error_messages, 'Address is required.');
     } else {
-        $address = $db->real_escape_string($_POST['address']);
-        if (strlen($address) > 100) {
-            array_push($error_messages, 'Address cannot exceed 100 characters.');
+        $addressPostcode = $db->real_escape_string($_POST['addressPostcode']);
+        if (strlen($addressPostcode) > 100) {
+            array_push($error_messages, 'Postcode cannot exceed 10 characters.');
         }
     }
 
@@ -112,10 +139,10 @@
     } else {
         // Insert user into the database
         try {
-            $query = "INSERT INTO Users (username, password, email, firstName, lastName, address, isBuyer, isSeller) 
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $query = "INSERT INTO Users (username, password, email, firstName, lastName, addressStreet, addressTown, addressCountry, addressPostcode, isBuyer, isSeller) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $db->prepare($query);
-            $stmt->bind_param("ssssssii", $username, $password, $email, $first_name, $last_name, $address, $isBuyer, $isSeller);
+            $stmt->bind_param("sssssssssii", $username, $password, $email, $first_name, $last_name, $addressStreet, $addressTown, $addressCountry, $addressPostcode, $isBuyer, $isSeller);
 
             if ($stmt->execute()) {
                 echo '<div class="text-center">Registration successful!</div>';

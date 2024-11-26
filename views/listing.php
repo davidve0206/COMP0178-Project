@@ -39,9 +39,8 @@ $query_bids = "SELECT
                   isWinner,
                   Users.username,
                   Users.email,
-                  Users.firstName,
-                  Users.lastName,
-                  Users.address
+                  CONCAT(Users.firstName, ' ', Users.lastName) as fullName,
+                  CONCAT(Users.addressStreet, ', ', Users.addressTown, ', ', Users.addressCountry, ', ', Users.addressPostcode) as address
                 FROM Bids JOIN Users ON Bids.bidderId = Users.id
                 WHERE itemId = ? ORDER BY bidPrice DESC";
 $stmt_bids = $db->prepare($query_bids);
@@ -139,7 +138,7 @@ if (isset($_SESSION['userId'])) {
               <?php if(isset($highest_bid) && $highest_bid['isWinner']): ?>
                 <p class="text-muted mb-1">Please arrange payment and delivery to:</p>
                 <ul class="text-muted pl-3">
-                  <li><?php echo htmlspecialchars($highest_bid['firstName'] . ' ' . $highest_bid['lastName']); ?></li>
+                  <li><?php echo htmlspecialchars($highest_bid['fullName']); ?></li>
                   <li><?php echo htmlspecialchars($highest_bid['address']); ?></li>
                   <li><?php echo htmlspecialchars($highest_bid['email']); ?></li>
                 </ul>

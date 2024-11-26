@@ -20,7 +20,12 @@ function close_auctions(mysqli $db, Mailer $mailer) {
         
         // Get the highest bid for the item and check if they are a winner
         $highest_bid = $db->query("
-        SELECT b.bidderId, b.bidPrice, u.email
+        SELECT
+            b.bidderId,
+            b.bidPrice,
+            u.email,
+            CONCAT(u.firstName, ' ', u.lastName) as fullName,
+            CONCAT(u.addressStreet, ', ', u.addressTown, ', ', u.addressCountry, ', ', u.addressPostcode) as address
         FROM Bids b JOIN Users u ON b.bidderId = u.id 
         WHERE b.itemId = $item_id ORDER BY b.bidPrice DESC LIMIT 1
         ")->fetch_assoc();
@@ -30,7 +35,7 @@ function close_auctions(mysqli $db, Mailer $mailer) {
         if ($highest_bid && $highest_bid['bidPrice'] >= $reserve_price) {
             // Send email to the seller
             $seller_subject = "Auction Closed";
-            $seller_message = "The auction for item $item_name has closed. The winning bid was {$highest_bid['bidPrice']}.";
+            $seller_message = "The auction for item $item_name has closed. The winning bid was {$highest_bid['bidPrice']} by {$highest_bid['fullName']}. Please send the item to the following address: {$highest_bid['address']}.";
             $mailer->sendEmail($seller_email, $seller_subject, $seller_message);
             $notifications_query_values[] = "($seller_id, '$seller_subject', '$seller_message')";
 
