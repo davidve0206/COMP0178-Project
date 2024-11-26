@@ -54,8 +54,29 @@
     <div class="form-group row">
       <label for="address" class="col-sm-2 col-form-label text-right">Address</label>
       <div class="col-sm-10">
-        <input type="text" class="form-control" id="address" name="address" placeholder="Address" oninput="toggleRequired('addressHelp', this)">
-        <small id="addressHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
+        <input type="text" class="form-control" id="addressStreet" name="addressStreet" placeholder="Address" oninput="toggleRequired('addressStreetHelp', this)">
+        <small id="addressStreetHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="address" class="col-sm-2 col-form-label text-right">Town</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="addressTown" name="addressTown" placeholder="Town" oninput="toggleRequired('addressTownHelp', this)">
+        <small id="addressTownHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="address" class="col-sm-2 col-form-label text-right">Country</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="addressCountry" name="addressCountry" placeholder="Country" oninput="toggleRequired('addressCountryHelp', this)">
+        <small id="addressCountryHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="address" class="col-sm-2 col-form-label text-right">Postcode</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="addressPostcode" name="addressPostcode" placeholder="Postcode" oninput="toggleRequired('addressPostcodeHelp', this)">
+        <small id="addressPostcodeHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
       </div>
     </div>
     <div class="form-group row">

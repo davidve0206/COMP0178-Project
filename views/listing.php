@@ -32,7 +32,15 @@ $result = $stmt->get_result();
 $auction = $result->fetch_assoc();
 
 // Fetch current bid
-$query_bids = "SELECT bidPrice, bidderId, isHighest, isWinner, Users.username
+$query_bids = "SELECT
+                  bidPrice,
+                  bidderId,
+                  isHighest,
+                  isWinner,
+                  Users.username,
+                  Users.email,
+                  CONCAT(Users.firstName, ' ', Users.lastName) as fullName,
+                  CONCAT(Users.addressStreet, ', ', Users.addressTown, ', ', Users.addressCountry, ', ', Users.addressPostcode) as address
                 FROM Bids JOIN Users ON Bids.bidderId = Users.id
                 WHERE itemId = ? ORDER BY bidPrice DESC";
 $stmt_bids = $db->prepare($query_bids);
@@ -92,7 +100,7 @@ if (isset($_SESSION['userId'])) {
 
       <div class="row"> <!-- Begin parallel layout -->
         <!-- Left Column: Auction Details -->
-        <div class="col-md-8">
+        <div class="col-md-7">
           <p class="text-muted">Description: <?php echo htmlspecialchars($auction['description']); ?></p>
           <p class="text-muted">Closes: <?php echo date('D jS M, g:ia', strtotime($auction['endDate']));
                                         echo $time_remaining; ?></p>
@@ -117,7 +125,7 @@ if (isset($_SESSION['userId'])) {
         </div>
 
         <!-- Right Column: Bidding Info -->
-        <div class="col-md-4">
+        <div class="col-md-5">
           <?php if ($now > $end_time): ?>
             <p>This auction ended <?php echo (date_format($end_time, 'j M H:i')); ?></p>
             <?php if (isset($_SESSION['userId']) && intval($_SESSION['userId']) == $auction['sellerId']): ?>
@@ -127,6 +135,14 @@ if (isset($_SESSION['userId'])) {
                                       . number_format($current_price, 2) . ' by ' . $highest_bid['username']
                                       : 'No bids were placed.'
                                     ) ?></p>
+              <?php if(isset($highest_bid) && $highest_bid['isWinner']): ?>
+                <p class="text-muted mb-1">Please arrange payment and delivery to:</p>
+                <ul class="text-muted pl-3">
+                  <li><?php echo htmlspecialchars($highest_bid['fullName']); ?></li>
+                  <li><?php echo htmlspecialchars($highest_bid['address']); ?></li>
+                  <li><?php echo htmlspecialchars($highest_bid['email']); ?></li>
+                </ul>
+              <?php endif; ?>
             <?php endif; ?>
             <?php if (
               isset($_SESSION['userId'])

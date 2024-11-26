@@ -32,12 +32,15 @@ function migrate()
     CREATE TABLE Users
     (
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(30) NOT NULL,
+    username VARCHAR(30) NOT NULL UNIQUE,
     password VARCHAR(30) NOT NULL,
-    email VARCHAR(50) NOT NULL,
+    email VARCHAR(50) NOT NULL UNIQUE,
     firstName VARCHAR(20) NOT NULL,
     lastName VARCHAR(30) NOT NULL,
-    address VARCHAR(100) NOT NULL,
+    addressStreet VARCHAR(100) NOT NULL,
+    addressTown VARCHAR(50) NOT NULL,
+    addressCountry VARCHAR(50) NOT NULL,
+    addressPostcode VARCHAR(10) NOT NULL,
     userJoinTime TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     isBuyer BOOLEAN NOT NULL DEFAULT True, 
     isSeller BOOLEAN NOT NULL DEFAULT False 
