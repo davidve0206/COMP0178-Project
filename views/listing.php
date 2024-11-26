@@ -166,6 +166,7 @@ if (isset($_SESSION['userId'])) {
               </form>
             <?php endif; ?>
           <?php else: ?>
+            <p class="lead">Current bid: £<?php echo (number_format($current_price, 2)); ?></p>
             <?php if ($total_bids > 0): ?>
               <p class="text-muted mb-0">Recent bids:</p>
               <ul>
@@ -180,7 +181,6 @@ if (isset($_SESSION['userId'])) {
                 } ?>
               </ul>
             <?php endif; ?>
-            <p class="lead">Current bid: £<?php echo (number_format($current_price, 2)); ?></p>
             <?php if (isset($_SESSION['userId']) && $_SESSION['isBuyer']): ?>
               <?php if (!isset($highest_bid) || intval($_SESSION['userId']) != $highest_bid['bidderId']): ?>
                 <form method="POST" action="place_bid.php">
