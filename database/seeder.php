@@ -13,11 +13,11 @@ function seed(mysqli $db)
     # TODO: implement password hashing when we do it for the rest of the app... for now its just a text
 
     $user_creation_statement = "
-    INSERT INTO Users (id, username, password, email, firstName, lastName, address, isBuyer, isSeller)
+    INSERT INTO Users (id, username, password, email, firstName, lastName, addressStreet, addressTown, addressCountry, addressPostcode, isBuyer, isSeller)
     VALUES
-        (1, 'buyer1', 'password', 'uclauctionsite2024g27+1@gmail.com', 'BuyerAdam', 'BuyerSmith', '123 UCL, London', True, False),
-        (2, 'seller1', 'password', 'uclauctionsite2024g27+2@gmail.com', 'SellerJhon', 'SellerKeynes', '456 UCL, London', False, True),
-        (3, 'mixed1', 'password', 'uclauctionsite2024g27+3@gmail.com', 'MixedDavid', 'MixedRicardo', '789 UCL, London', True, True)
+        (1, 'buyer1', 'password', 'uclauctionsite2024g27+1@gmail.com', 'BuyerAdam', 'BuyerSmith', '123 UCL', 'London', 'UK', 'WC1E', True, False),
+        (2, 'seller1', 'password', 'uclauctionsite2024g27+2@gmail.com', 'SellerJhon', 'SellerKeynes', '456 UCL', 'London', 'UK', 'WC1E', False, True),
+        (3, 'mixed1', 'password', 'uclauctionsite2024g27+3@gmail.com', 'MixedDavid', 'MixedRicardo', '789 UCL', 'London', 'UK', 'WC1E', True, True)
     ";
     $db->query($user_creation_statement);
 
