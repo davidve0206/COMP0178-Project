@@ -116,7 +116,8 @@ function seed(mysqli $db)
         (1, 11),
         (1, 12),
         (9, 1),
-        (9, 4)
+        (9, 4),
+        (10, 6)
     ";
     $db->query($create_followed_statement);
 
