@@ -47,7 +47,7 @@ function close_auctions(mysqli $db, Mailer $mailer) {
             $notifications_query_values[] = "({$highest_bid['bidderId']}, '$winner_subject', '$winner_message')";
 
             // Update the bid to be a winner
-            $db->query("UPDATE Bids SET isWinner = True WHERE itemId = $item_id AND bidderId = {$highest_bid['bidderId']} AND bidPrice = {$highest_bid['bidPrice']}");
+            $db->query("UPDATE Bids SET isWinner = True WHERE itemId = $item_id AND bidPrice = {$highest_bid['bidPrice']}");
         } else {
             // Send email to the seller
             $seller_subject = "Auction Closed";
