@@ -87,7 +87,7 @@ function migrate()
     bidDate TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     FOREIGN KEY (bidderId) REFERENCES Users(id) ON DELETE CASCADE,
     FOREIGN KEY (itemId) REFERENCES Items(id) ON DELETE CASCADE,
-    CONSTRAINT PK_Bids PRIMARY KEY (bidderId, itemId, bidPrice)
+    CONSTRAINT PK_Bids PRIMARY KEY (itemId, bidPrice)
     )";
     $db->query($create_bids_statement);
     

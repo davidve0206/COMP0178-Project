@@ -32,7 +32,8 @@ function close_auctions(mysqli $db, Mailer $mailer) {
 
         // If the auction has a winner, send notifications to both the winner and the seller
         // and update the bid to be a winner, else, just notify the seller
-        if ($highest_bid && $highest_bid['bidPrice'] >= $reserve_price) {
+        $hasWinner = $highest_bid && $highest_bid['bidPrice'] >= $reserve_price;
+        if ($hasWinner) {
             // Send email to the seller
             $seller_subject = "Auction Closed";
             $seller_message = "The auction for item $item_name has closed. The winning bid was {$highest_bid['bidPrice']} by {$highest_bid['fullName']}. Please send the item to the following address: {$highest_bid['address']}.";
@@ -46,7 +47,7 @@ function close_auctions(mysqli $db, Mailer $mailer) {
             $notifications_query_values[] = "({$highest_bid['bidderId']}, '$winner_subject', '$winner_message')";
 
             // Update the bid to be a winner
-            $db->query("UPDATE Bids SET isWinner = True WHERE itemId = $item_id AND bidderId = {$highest_bid['bidderId']} AND bidPrice = {$highest_bid['bidPrice']}");
+            $db->query("UPDATE Bids SET isWinner = True WHERE itemId = $item_id AND bidPrice = {$highest_bid['bidPrice']}");
         } else {
             // Send email to the seller
             $seller_subject = "Auction Closed";
@@ -56,7 +57,7 @@ function close_auctions(mysqli $db, Mailer $mailer) {
         }
 
         // Then send emails to every other user that has followed the item
-        $followers = $db->query("SELECT u.id, u.email FROM FollowedItems fi JOIN Users u ON fi.userId = u.id WHERE fi.itemId = $item_id");
+        $followers = $db->query("SELECT u.id, u.email FROM FollowedItems fi JOIN Users u ON fi.userId = u.id WHERE fi.itemId = $item_id" . ($hasWinner ? " AND NOT u.id = {$highest_bid['bidderId']}" : ""));
         while ($follower_row = $followers->fetch_assoc()) {
             $follower_subject = "Auction Closed";
             $follower_message = "The auction for item $item_name, which you were watching, has closed.";
