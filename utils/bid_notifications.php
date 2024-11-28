@@ -50,27 +50,21 @@ function bid_notifications(
     // Next we're sending email to whoever might be following the bid
 
     // Query to extract information to notify people following the item that there's a new bid
-    $query = "SELECT f.userId AS followerId, bidderId , u.email, MAX(b.isHighest) as isHighest
+    $query = "SELECT f.userId AS followerId, u.email
     FROM Items i
-    LEFT JOIN Bids b ON b.itemId = i.id
-    LEFT JOIN FollowedItems f ON i.id = f.itemId 
+    LEFT JOIN FollowedItems f ON i.id = f.itemId
     LEFT JOIN Users u ON f.userId = u.id
-    WHERE i.id = $item_id
-    GROUP BY i.id, bidderid";
+    WHERE i.id = $item_id";
     $followerInformation = $db->query($query);
     // Loop to send followers information
     while ($row = $followerInformation->fetch_assoc()) {
         // Pull information from the current row
         $followerId = $row['followerId'];
-        $itemBidderId = $row['bidderId'];
         $followerEmail = $row['email'];
-        $isHighest = $row['isHighest'];
 
         if (!is_null($followerId)) {
-            // if there's no followerId, there is no-one to notify
-            if ($isHighest == 1 && $followerId == ($previousBidderId ?? "")) {
-                // Skip this iteration of the loop as the previous highest bidder will be notified by the outbid functionality
-            } elseif ($followerId == $itemBidderId && $currentBidderId != $followerId) {
+            // The current bidder doesnt need to be notified and the previous bidder gets a different notification
+            if ($currentBidderId != $followerId && $previousBidderId != $followerId) {
 
                 // Send an email to followers
                 $followerSubject = "New bid on your followed item: ''$listing_name''";
