@@ -62,6 +62,7 @@ $seller_detail = "(Auctions: {$auction['seller_item_count']}, Rating: $seller_ra
 // Calculate time to auction end:
 $now = new DateTime();
 $end_time = new DateTime($auction['endDate']);
+$start_time = new DateTime($auction['startDate']);
 $time_remaining = ($now < $end_time)
   ? ' (in ' . display_time_remaining(date_diff($now, $end_time)) . ')'
   : ' (auction ended)';
@@ -95,7 +96,7 @@ if (isset($_SESSION['userId'])) {
         <?php if (!empty($auction['imagePath'])): ?>
           <img src="<?php echo htmlspecialchars($auction['imagePath']); ?>" class="img-fluid rounded mb-3" style="max-width: 500px; max-height: 400px; width: auto; height: auto;">
         <?php endif; ?>
-    </div>
+      </div>
       <h3 class="card-title"><?php echo htmlspecialchars($auction['itemName']); ?></h3>
 
       <div class="row"> <!-- Begin parallel layout -->
@@ -135,7 +136,7 @@ if (isset($_SESSION['userId'])) {
                                       . number_format($current_price, 2) . ' by ' . $highest_bid['username']
                                       : 'No bids were placed.'
                                     ) ?></p>
-              <?php if(isset($highest_bid) && $highest_bid['isWinner']): ?>
+              <?php if (isset($highest_bid) && $highest_bid['isWinner']): ?>
                 <p class="text-muted mb-1">Please arrange payment and delivery to:</p>
                 <ul class="text-muted pl-3">
                   <li><?php echo htmlspecialchars($highest_bid['fullName']); ?></li>
@@ -165,6 +166,8 @@ if (isset($_SESSION['userId'])) {
                 <button type="submit" class="btn btn-secondary form-control">Rate / Update Rating</button>
               </form>
             <?php endif; ?>
+          <?php elseif ($now < $start_time): ?>
+            <p class="text-muted">This auction has not started.</p>
           <?php else: ?>
             <p class="lead">Current bid: £<?php echo (number_format($current_price, 2)); ?></p>
             <?php if ($total_bids > 0): ?>
