@@ -1,6 +1,6 @@
 erDiagram
     USERS {
-        int userId PK
+        int userId
         string username
         string password
         string email
@@ -20,9 +20,11 @@ erDiagram
     }
 
     ITEMS {
-        int itemId PK
+        int itemId
         string itemName
         string itemDescription
+        bool isClosed
+        bool imagePath
     }
 
     CATEGORIES {
@@ -35,6 +37,7 @@ erDiagram
         float bidPrice
         date bidDate
         bool isWinner
+        bool isHighest
     }
 
     AUCTIONS {
@@ -49,12 +52,15 @@ erDiagram
         int notificationId
         string subject
         string message
+    }
+    
+    NOTIFICATIONS2 {
         date notificationDate
+        bool isRead
+    }
+    RATINGS {
+        int itemId
+        int rating
+        string comment
     }
 
-    USERS ||--o{ BUYER : ""
-    USERS ||--o{ SELLER : ""
-    BUYER }o--o{ ITEMS : "Bids for"
-    BUYER }o--o{ ITEMS : "Watches"
-    ITEMS }o--|| CATEGORIES : "Belongs to"
-    SELLER ||--o{ ITEMS : "Creates Auction"
