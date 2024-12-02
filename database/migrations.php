@@ -124,7 +124,7 @@ function migrate()
     submittedTime TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     FOREIGN KEY (sellerId) REFERENCES Users(id) ON DELETE CASCADE,
     FOREIGN KEY (itemId) REFERENCES Items(id) ON DELETE CASCADE,
-    CONSTRAINT unique_seller_item UNIQUE (sellerId, itemId)
+    CONSTRAINT unique_review_per_item UNIQUE (itemId)
     )";
     $db->query($create_ratings_statement);
 
