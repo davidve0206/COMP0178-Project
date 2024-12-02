@@ -35,7 +35,6 @@ if (!isset($_SESSION["user_id"]) && isset($_POST["username"]) && isset($_POST["p
 }
 
 // Show different messages if the loggin was a success or not
-// TODO: Improve these views if we have extra time
 if ($login_success) {
     echo('<div class="text-center">You are now logged in! You will be redirected shortly.</div>');
 } else {

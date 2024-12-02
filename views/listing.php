@@ -55,10 +55,6 @@ $seller_rating = $auction['seller_rating']
   : 'No ratings yet';
 $seller_detail = "(Auctions: {$auction['seller_item_count']}, Rating: $seller_rating)";
 
-// TODO: Note: Auctions that have ended may pull a different set of data,
-//       like whether the auction ended in a sale or was cancelled due
-//       to lack of high-enough bids. Or maybe not.
-
 // Calculate time to auction end:
 $now = new DateTime();
 $end_time = new DateTime($auction['endDate']);
