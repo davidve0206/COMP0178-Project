@@ -33,10 +33,11 @@
 
   // Perform a query to pull up auctions they might be interested in.
   $db->query("USE auction_site");
-  $query = "SELECT id, itemName, description, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice
+  $query = "SELECT id, itemName, description, startDate, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice
             FROM Items
             LEFT JOIN Bids ON Items.id = Bids.itemId
             WHERE endDate > NOW()
+            AND startDate < NOW()
             AND Items.categoryId IN (
               SELECT DISTINCT(categoryId)
               FROM Items JOIN Bids ON Items.id = Bids.itemId

@@ -10,7 +10,6 @@ function seed(mysqli $db)
 {
 
     # I am using my personal email in case we need to test, feel free to change for your own if you are testing that functionality
-    # TODO: implement password hashing when we do it for the rest of the app... for now its just a text
 
     $user_creation_statement = "
     INSERT INTO Users (id, username, password, email, firstName, lastName, addressStreet, addressTown, addressCountry, addressPostcode, isBuyer, isSeller)
@@ -58,8 +57,6 @@ function seed(mysqli $db)
     ";
     $db->query($items_creation_statement);
 
-    # TODO: when we create a functionality to create bids, we should consume it here instead of creating them by hand
-    # this will ensure any expected behaviours (i.e., auto-adding to watched list)
     $bids_creation_statement = "
     INSERT INTO Bids (bidderId, itemId, bidPrice, isHighest, isWinner)
     VALUES

@@ -21,7 +21,7 @@ function display_time_remaining($interval)
 
 // print_listing_li:
 // This function prints an HTML <li> element containing an auction listing
-function print_listing_li($item_id, $title, $desc, $price, $num_bids, $end_time)
+function print_listing_li($item_id, $title, $desc, $price, $num_bids, $end_time, $start_time)
 {
   // Truncate long descriptions
   if (strlen($desc) > 250) {
@@ -41,6 +41,8 @@ function print_listing_li($item_id, $title, $desc, $price, $num_bids, $end_time)
   $now = new DateTime();
   if ($now > $end_time) {
     $time_remaining = 'This auction has ended';
+  } elseif ($now < $start_time) {
+    $time_remaining = 'This auction has not started';
   } else {
     // Get interval:
     $time_to_end = date_diff($now, $end_time);
@@ -121,7 +123,7 @@ function number_of_bids($db, $item_id)
 function construct_listings_query($keyword, $category, $ordering, $bidder_id, $seller_id, $active_only)
 {
 
-  $query = "SELECT id, itemName, description, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice 
+  $query = "SELECT id, itemName, description, startDate, endDate, GREATEST(startPrice, IFNULL(MAX(bidPrice), startPrice)) AS currentPrice 
 FROM Items LEFT JOIN Bids ON Items.id = Bids.itemId ";
 
   // Add clause for bidder - used on mybids page
@@ -175,10 +177,9 @@ function listings_loop($db, $query_result)
     $current_price = $row['currentPrice'];
     $num_bids = number_of_bids($db, $item_id);
     $end_date = new DateTime($row['endDate']);
-    print_listing_li($item_id, $item_name, $description, $current_price, $num_bids, $end_date);
+    $start_date = new DateTime($row['startDate']);
+    print_listing_li($item_id, $item_name, $description, $current_price, $num_bids, $end_date, $start_date);
   }
 
   echo '</ul>';
 }
-
-?>

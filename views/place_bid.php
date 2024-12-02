@@ -68,7 +68,6 @@ if ($currentBidderId == $sellerId) {
 // bidPrice
 if ($_POST["bid"] < $currentPrice + 1) {
     array_push($error_messages, 'Your bid must be more than a pound higher than the current value.');
-    // (Fake) TODO: Make the increase in increment correspond to item value, so that a higher value item needs to have a greater bid
 } else {
     // Update both the bid price and bid winner as they both depend on the bid being bigger than the last
     $newPrice = $_POST["bid"];
